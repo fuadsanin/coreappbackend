@@ -10333,10 +10333,10 @@ def test(request,id):
     user=user_registration.objects.get(id=id)
     c=Promissory.objects.filter(user_id=id).latest('id') 
     
-    user = Promissory.objects.get(user_id=id)        
+    user = Promissory.objects.filter(user_id=id)        
     user.complete_status = 1
     user.save()
-    msg_success = "Status Change To Competed"
+    msg_success = "Status Change To Completed"
         #return redirect('/accounts_registration_details')   
         #return render(request,'accounts_download_promissory.html',{'z':z,'msg_success':msg_success,'user':user,'c':c})
     return render(request,'accounts_download_promissory.html',{'z':z,'user':user,'c':c,'msg_success':msg_success,})
