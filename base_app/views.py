@@ -10333,7 +10333,7 @@ def test(request,id):
     user=user_registration.objects.get(id=id)
     c=Promissory.objects.filter(user_id=id).latest('id') 
     
-    user = Promissory.objects.filter(user_id=id)        
+    user = Promissory.objects.filter(user_id=id).latest('id')        
     user.complete_status = 1
     user.save()
     msg_success = "Status Change To Completed"
