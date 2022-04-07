@@ -20,6 +20,11 @@ class branch_registration(models.Model):
         return self.branch_name
 
 
+class acnt_monthdays(models.Model): 
+    month_fromdate = models.DateField(null=True, blank=True)
+    month_todate = models.DateField(null=True, blank=True) 
+    month_workingdays = models.IntegerField()
+    month_holidays = models.IntegerField()
 
 
 
@@ -127,7 +132,14 @@ class user_registration(models.Model):
     relieveqr = models.CharField(max_length=500, default='',null=True,blank=True)
     expqr = models.CharField(max_length=500, default='',null=True,blank=True)
     hrmanager = models.CharField(max_length=500, default='',null=True,blank=True)
- 
+    confirm_salary = models.CharField(max_length=255, default='')
+    confirm_salary_status = models.CharField(max_length=255, default='0')
+    payment_file_downlod = models.FileField(upload_to = 'images/', null=True, blank=True)
+    total_amount=models.IntegerField(default='0')
+    payment_amount_date =models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
+    salary_pending = models.CharField(max_length=100, default='')
+    salary_status =  models.CharField(max_length=10, default='')
+   
     def __str__(self):
         return self.fullname
 
@@ -273,6 +285,12 @@ class test_status(models.Model):
     def __str__(self):
         return self.project.project
     
+
+class previousTeam(models.Model):
+    teamname = models.ForeignKey(create_team, on_delete=models.SET_NULL, related_name='teamname', null=True, blank=True)
+    user =  models.ForeignKey(user_registration, on_delete=models.SET_NULL, related_name='user1',null=True,blank=True)
+    pstatus = models.CharField(max_length=200)
+
 class tester_status(models.Model):
     tester = models.ForeignKey(user_registration, on_delete=models.SET_NULL,
                                related_name='tester_statustester', null=True, blank=True)
@@ -502,7 +520,34 @@ class conditions(models.Model):
     condition5=models.CharField(max_length=1000)
     condition6=models.CharField(max_length=1000)
     
+class Promissory(models.Model):
+    user_id = models.ForeignKey(user_registration, on_delete=models.SET_NULL, related_name='promissory_user',null=True,blank=True)
+    inital_amount=models.CharField(max_length=100,null=True, blank=True ,default='')
+    inital_paid_on=models.CharField(max_length=100,null=True, blank=True ,default='')
+    inital_paid_amount=models.CharField( max_length=100,null=True, blank=True,default='')
+    inital_paid_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    inital_balance_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    inital_due_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    inital_total_payment=models.CharField(max_length=100,null=True, blank=True,default='')
     
+    second_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    second_due_on=models.CharField(max_length=100,null=True, blank=True ,default='')
+    second_paid_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    second_paid_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    second_balance_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    second_due_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    second_total_payment=models.CharField(max_length=100,null=True, blank=True,default='')
+    
+    final_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    final_due_on=models.CharField(max_length=100,null=True, blank=True ,default='')
+    final_paid_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    final_paid_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    final_balance_amount=models.CharField(max_length=100,null=True, blank=True,default='')
+    final_due_date=models.CharField(max_length=100,null=True, blank=True ,default='')
+    final_total_payment=models.CharField(max_length=100,null=True, blank=True,default='') 
+
+    complete_status=models.CharField(max_length=100,null=True, blank=True,default='0') 
+
     
     
     

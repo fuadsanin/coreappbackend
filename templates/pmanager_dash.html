@@ -52,6 +52,14 @@
             <div class="col-md-6 col-lg-6 col-sm-6 col-6 joining_date">Designation</div>
             <div class="col-md-6 col-lg-6 col-sm-6 col-6 joining_date" style="color:#6C7293;">{{i.designation}}</div>
           </div>
+          <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+            <div class="text-md-center">
+              <h6 class="mb-1">Confirmed Salary</h6>
+            </div>
+            <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+              <h6 class="font-weight-bold mb-0" style="color: #6C7293;">{{i.confirm_salary}}</h6>
+            </div>
+          </div>
         </center>
       </div>
     </div>
@@ -141,24 +149,44 @@
 
 
 <div class="row">
-     <div class="col-lg-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Pie chart</h4>
-                <canvas id="pie-chart" style="height:250px"></canvas>
+  <div class="col-lg-6 col-md-6 col-sm-12 col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Pie chart</h4>
+        <canvas id="pie-chart" style="height:200px"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-6 col-sm-12 col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Bar chart</h4>
+        <canvas id="chart" style="height:200px"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 
+
+<div class="col-md-12 col-lg-12 col-12  grid-margin">
+  <div class="card" style="max-height: 250px">
+    <a href="{% url 'projectMAN_leavehistory' %}" style="text-decoration: none">
+      <div class="card-body">
+        
+
+          <div class="row" style="padding-top:10px;">
+            <div class="col-8 col-sm-8 col-lg-8 col-md-8 my-auto">
+              <div class="d-flex d-sm-block d-md-flex align-items-center">
+                <h4 class="mb-0" style="color:white;">Leave History</h4>
+              </div>
             </div>
-        </div>
-    </div>
-    <div class="col-lg-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Bar chart</h4>
-                <canvas id="chart" style="height:230px"></canvas>
+            <div class="col-4 col-sm-4 col-lg-4 col-md-4 text-center text-xl-right">
+               <h2 class="mb-0" style="color:white;">{{le.count}}</h2>
             </div>
-        </div>
-    </div>
-   
+          </div>
+      </div>
+    </a>
+  </div>
 </div>
 
 
@@ -185,77 +213,65 @@
 
 <script>
 
-        var config = {
-          type: 'pie',
-          data: {
-            
-            datasets: [{
-              
-              data: {{ data|safe }},
-              backgroundColor: ['rgba(255, 99, 132, 0.5)',
-              'rgba(54, 162, 235, 0.5)',
-              'rgba(255, 206, 86, 0.5)'
-              ],
-            }],
-            
-            labels: ['workperformance','Attitude','Creativity'],
-            
-          },
-          options: {
-            responsive: true
-          }
-        };
-    
-        window.onload = function() {
-          var ctx = document.getElementById('pie-chart').getContext('2d');
-          window.myPie = new Chart(ctx, config);
-        };
-    
-      </script>
-      <script>
-    
-    let ctx = document.getElementById("chart").getContext("2d");
-    let chart = new Chart(ctx, {
-    type: "bar",
+  var config = {
+    type: 'pie',
     data: {
-     labels: ['workperformance','Attitude','Creativity'],
-     datasets: [
-      {
-        
+      datasets: [{
         
         data: {{ data|safe }},
-        
-        
-        backgroundColor: ['rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 206, 86, 0.2)'
-        
-        ],
-        
-
-      }
-     ]
+        backgroundColor: ['rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)',
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(153, 102, 255, 0.5)',
+        'rgba(255, 159, 64, 0.5)'],
+        label: 'workperformance'
+      }],
+      
+      labels: ['workperformance','Attitude','Creativity']
+      
     },
-    options: {   
-        legend: {
-        display: false
-        },
-       
-        scales: {
-        	yAxes: [{
-            	ticks: {
-                	beginAtZero: true,
-                    max:100
-            	}
-        	}]
-    	}
-        
-        
+    options: {
+      responsive: true
     }
+  };
+
+  window.onload = function() {
+    var ctx = document.getElementById('pie-chart').getContext('2d');
+    window.myPie = new Chart(ctx, config);
+  };
+
+</script>
+<script>
+
+let ctx = document.getElementById("chart").getContext("2d");
+let chart = new Chart(ctx, {
+type: "bar",
+data: {
+labels: ['workperformance','Attitude','Creativity'],
+datasets: [
+{
+  label: "Performance",
+  backgroundColor: "#79AEC8",
+  borderColor: "#417690",
   
-        
-    
-    
+  data: {{ data|safe }},
+  backgroundColor: ['rgba(255, 99, 132, 0.2)',
+  'rgba(54, 162, 235, 0.2)',
+  'rgba(255, 206, 86, 0.2)',
+  'rgba(75, 192, 192, 0.2)',
+  'rgba(153, 102, 255, 0.2)',
+  'rgba(255, 159, 64, 0.2)'],
+
+}
+]
+},
+options: {
+title: {
+  text: "Performance",
+ display: true
+}
+}
 });
 
 </script>

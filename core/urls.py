@@ -968,12 +968,13 @@ urlpatterns = [
     re_path(r'^accounts_bank_acnt_details/(?P<id>\d+)/$', views.accounts_bank_acnt_details, name='accounts_bank_acnt_details'),
     re_path(r'^accounts_salary_details/(?P<id>\d+)/$', views.accounts_salary_details, name='accounts_salary_details'),
     re_path(r'^logout5/$', views.logout5, name='logout5'),
-     re_path(r'^acntpaypdf/(?P<id>\d+)/(?P<tid>\d+)/$', views.acntpaypdf,name='acntpaypdf'),
-    
+    re_path(r'^acntpaypdf/(?P<id>\d+)/(?P<tid>\d+)/$', views.acntpaypdf,name='acntpaypdf'),
     re_path(r'^accounts_leavehistory$',views.accounts_leavehistory, name="accounts_leavehistory"),
     re_path(r'^accounts_leavehistory_department/(?P<id>\d+)/$',views.accounts_leavehistory_department, name="accounts_leavehistory_department"),
     re_path(r'^accounts_leavehistory_employees/(?P<id>\d+)/(?P<id1>\d+)/$',views.accounts_leavehistory_employees, name="accounts_leavehistory_employees"),
     re_path(r'^accounts_emp_leavehistory/(?P<id>\d+)/$',views.accounts_emp_leavehistory, name="accounts_emp_leavehistory"),
+
+
     
     
     re_path(r'^offerletter/(?P<id>\d+)/$', views.offerletter, name="offerletter"),
@@ -1109,14 +1110,54 @@ urlpatterns = [
     re_path(r'^SuperAdmin_Reportedissue_department$',views.SuperAdmin_Reportedissue_department, name='SuperAdmin_Reportedissue_department'),
     re_path(r'^SuperAdmin_ReportedissueShow/(?P<id>\d+)/$',views.SuperAdmin_ReportedissueShow, name='SuperAdmin_ReportedissueShow'),
     
-    ########## end ##########
+    ########## new ##########
 
+    re_path(r'^accounts_traineepayment_notverified/$', views.accounts_traineepayment_notverified, name='accounts_traineepayment_notverified'),
+    re_path(r'^verified/(?P<id>\d+)$',views.verified,name="verified"), 
+    re_path(r'^accounts_traineepayment_pending/$', views.accounts_traineepayment_pending,name='accounts_traineepayment_pending'),
+    re_path(r'^accounts_newtrainees/$', views.accounts_newtrainees,name='accounts_newtrainees'),
+    re_path(r'^accounts_salary_employees/$',views.accounts_salary_employees, name='accounts_salary_employees'),
+    re_path(r'^accounts_salaryconfirm/(?P<id>\d+)$', views.accounts_salaryconfirm, name='accounts_salaryconfirm'),
+    re_path(r'^accounts_salaried_employees/$', views.accounts_salaried_employees, name='accounts_salaried_employees'),
+    re_path(r'^accounts_monthdays_cards/$',views.accounts_monthdays_cards,name="accounts_monthdays_cards"),
+    re_path(r'^accounts_month_adddays_form/$',views.accounts_month_adddays_form,name="accounts_month_adddays_form"),
+    re_path(r'^accounts_month_viewdays/$',views.accounts_month_viewdays,name="accounts_month_viewdays"),
     
-    # re_path(r'^static/(?P<path>*)$', serve,{'document_root':settings.STATIC_ROOT}),
-    #re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^SuperAdmin_leavehistory$',views.SuperAdmin_leavehistory,name="SuperAdmin_leavehistory"),
+    re_path(r'^SuperAdmin_leaveapprovedstatus/(?P<id>\d+)/$',views.SuperAdmin_leaveapprovedstatus,name="SuperAdmin_leaveapprovedstatus"),
+    re_path(r'^SuperAdmin_rejectedstatus/(?P<id>\d+)/$',views.SuperAdmin_rejectedstatus,name="SuperAdmin_rejectedstatus"),
+
+    re_path(r'^projectMAN_leavehistory$',views.projectMAN_leavehistory,name="projectMAN_leavehistory"),     
+    re_path(r'^projectMAN_leaveapprovedstatus/(?P<id>\d+)/$',views.projectMAN_leaveapprovedstatus,name="projectMAN_leaveapprovedstatus"),
+    re_path(r'^projectMAN_rejectedstatus/(?P<id>\d+)/$',views.projectMAN_rejectedstatus,name="projectMAN_rejectedstatus"),
+
+    re_path(r'^TL_leavehistory$',views.TL_leavehistory,name="TL_leavehistory"),       
+    re_path(r'^TL_leaveapprovedstatus/(?P<id>\d+)/$',views.TL_leaveapprovedstatus,name="TL_leaveapprovedstatus"),
+    re_path(r'^TL_rejectedstatus/(?P<id>\d+)/$',views.TL_rejectedstatus,name="TL_rejectedstatus"),
+    
+    re_path(r'^trainer_leavehistory/$',views.trainer_leavehistory,name="trainer_leavehistory"),
+    re_path(r'^trainer_leaveapprovedstatus/(?P<id>\d+)/$',views.trainer_leaveapprovedstatus,name="trainer_leaveapprovedstatus"),
+    re_path(r'^trainer_rejectedstatus/(?P<id>\d+)/$',views.trainer_rejectedstatus,name="trainer_rejectedstatus"),
+
+    re_path(r'^tm_leavehistory/$',views.tm_leavehistory,name="tm_leavehistory"),       
+    re_path(r'^tm_leaveapprovedstatus/(?P<id>\d+)/$',views.tm_leaveapprovedstatus,name="tm_leaveapprovedstatus"),
+    re_path(r'^tm_rejectedstatus/(?P<id>\d+)/$',views.tm_rejectedstatus,name="tm_rejectedstatus"),
     
 
-
+    re_path(r'^BRadmin_leavehistory/$',views.BRadmin_leavehistory,name="BRadmin_leavehistory"),         
+    re_path(r'^BRadmin_leaveapprovedstatus/(?P<id>\d+)/$',views.BRadmin_leaveapprovedstatus,name="BRadmin_leaveapprovedstatus"),
+    re_path(r'^BRadmin_rejectedstatus/(?P<id>\d+)/$',views.BRadmin_rejectedstatus,name="BRadmin_rejectedstatus"),
+    re_path(r'^accounts_account_salary/$',views.accounts_account_salary,name="accounts_account_salary"),
+    re_path(r'^accounts_accout_salary_slip/(?P<id>\d+)/$',views.accounts_accout_salary_slip,name="accounts_accout_salary_slip"),
+    re_path(r'^accounts_salary_pending/$', views.accounts_salary_pending, name='accounts_salary_pending'),
+    re_path(r'^salarysubmit/(?P<id>\d+)$', views.salarysubmit, name='salarysubmit'),
+    re_path(r'^accounts_salary_given/$',views.accounts_salary_given, name='accounts_salary_given'),
+    re_path(r'^accounts_promissory/(?P<id>\d+)/$', views.accounts_promissory, name='accounts_promissory'),
+    re_path(r'^accounts_download_promissory/(?P<id>\d+)/$', views.accounts_download_promissory, name='accounts_download_promissory'),
+    re_path(r'^accounts_promissory_complete_pfd/(?P<id>\d+)/$', views.accounts_promissory_complete_pfd, name='accounts_promissory_complete_pfd'),
+    re_path(r'^accounts_promissory_notcomplete_pfd/(?P<id>\d+)/$', views.accounts_promissory_notcomplete_pfd, name='accounts_promissory_notcomplete_pfd'),
+    re_path(r'^accounts_promissory_add/(?P<id>\d+)/$', views.accounts_promissory_add, name='accounts_promissory_add'),
+    re_path(r'^test/(?P<id>\d+)/$', views.test, name='test'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

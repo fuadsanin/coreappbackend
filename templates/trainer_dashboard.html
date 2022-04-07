@@ -16,7 +16,7 @@
               <h6 class="mb-1">Joining Date</h6>
             </div>
             <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-              <h6 class="text-muted mb-0">{{z.joiningdate|date:'d-m-Y'}}</h6>
+              <h6 class="text-muted mb-0">{{z.joiningdate}}</h6>
             </div>
           </div>
           <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
@@ -25,6 +25,14 @@
             </div>
             <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
               <h6 class="text-muted mb-0">{{z.designation.designation}}</h6>
+            </div>
+          </div>
+          <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+            <div class="text-md-center">
+              <h6 class="mb-1">Confirmed Salary</h6>
+            </div>
+            <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+              <h6 class="font-weight-bold mb-0" style="color: #6C7293;">{{z.confirm_salary}}</h6>
             </div>
           </div>
         </center>
@@ -140,8 +148,27 @@
         </div>
       </div>
     </div>
-  </div>
+  
 
+  <div class="col-md-12 col-lg-12 col-12  grid-margin">
+    <div class="card" style="max-height: 250px">
+        <a href="{% url 'trainer_leavehistory' %}" style="text-decoration: none">
+        <div class="card-body">
+            <div class="row" style="padding-top:10px;">
+              <div class="col-8 col-sm-8 col-lg-8 col-md-8 my-auto">
+                <div class="d-flex d-sm-block d-md-flex align-items-center">
+                  <h4 class="mb-0" style="color:white;">LEAVE HISTORY</h4>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 col-lg-4 col-md-4 text-center text-xl-right">
+                <h2 class="mb-0 text-light">{{le.count}}</h2>
+              </div>
+            </div>
+        </div>
+      </a>
+    </div>
+</div>
+</div>
   <script>
 
     var config = {

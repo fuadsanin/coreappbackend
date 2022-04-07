@@ -8,7 +8,7 @@
   }
   </style>
 {% for i  in  mem1 %}
-{% if i.bank_name == '' %}
+{% if i.bank_name == NULL %}
 
 <div class="row mt-5">
   <div class="col-12 col-sm-1 col-md-2 col-lg-2"></div>
@@ -145,7 +145,7 @@
 {% endfor %}
 {% for i  in  mem1 %}
 
-{% if i.bank_name != '' %}
+{% if i.bank_name != NULL %}
 
 <div class="row mt-5">
   <div class="col-12 col-sm-1 col-md-2 col-lg-2"></div>

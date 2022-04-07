@@ -1,7 +1,10 @@
+from num2words import num2words
+from calendar import day_abbr
+from lib2to3.pgen2.pgen import DFAState
+from numpy import extract
 import qrcode
 import random
 import os
-# import psycopg2
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from urllib.parse import urlencode
@@ -76,7 +79,7 @@ def login(request):
                 email=request.POST['email'], password=request.POST['password'])
                 request.session['usernametrnr'] = member.designation_id
                 request.session['usernametrnr1'] = member.fullname
-                request.session['usernametrnr2'] = member.team_id
+                request.session['usernametrnr3'] = member.team_id
                 request.session['usernametrnr2'] = member.id
                 return render(request, 'trainersec.html', {'member': member})
     
@@ -218,15 +221,20 @@ def Dashboard(request):
             usernametm2 = request.session['usernametm2']
        
         mem = user_registration.objects.filter(id=usernametm2)
+        des=designation.objects.get(designation="trainer")
+        des1=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(Q(designation_id=des.id ) | Q(designation_id=des1.id)).filter(leaveapprovedstatus=0)
+       
         labels = []
         data = []
         queryset = user_registration.objects.filter(id=usernametm2)
         for i in queryset:
             labels=[i.workperformance,i.attitude,i.creativity]
             data=[i.workperformance,i.attitude,i.creativity]
-        return render(request, 'Dashboard.html', {'mem': mem ,'labels': labels,'data': data,})
+        return render(request, 'Dashboard.html', {'mem': mem ,'labels': labels,'data': data,'le':le})
     else:
         return redirect('/')
+
 def Newtrainees(request):
     if 'usernametm2' in request.session:
         if request.session.has_key('usernametm'):
@@ -253,7 +261,7 @@ def newtraineeesteam(request):
         if request.session.has_key('usernametm1'):
             usernametm1 = request.session['usernametm1']
         else:
-            return redirect('/')
+            usernametm1 = "dummy"
         mem = user_registration.objects.filter(
             designation_id=usernametm).filter(fullname=usernametm1)
         tid = request.GET.get('tid')
@@ -261,6 +269,7 @@ def newtraineeesteam(request):
         des  = course.objects.all()
         dept = department.objects.all()
         team = create_team.objects.all()
+       
         mem1 = designation.objects.get(designation="trainee")
         memm = user_registration.objects.filter(designation_id=mem1)
         print(memm)
@@ -268,10 +277,15 @@ def newtraineeesteam(request):
             register = user_registration.objects.get(id=tid)
             register.course =course.objects.get(id=int(request.POST['cou']))
             register.team =create_team.objects.get(id=int(request.POST['team']))
+            register.total_amount =course.objects.get(id=int(request.POST['cou'])).total_fee
             register.department =department.objects.get(id=int(request.POST['dept']))
-            
+            users =  previousTeam()
+            users.teamname = create_team.objects.get(id=int(request.POST['team']))
+            users.user = user_registration.objects.get(id=tid)
+            users.pstatus = 0
+            users.save()
             register.save()
-            return redirect('Newtrainees')
+            return redirect('Dashboard')
         return render(request, 'Newtrainees.html', {'memm': memm, 'des': des, 'dept': dept, 'team': team, })
     else:
         return redirect('/')
@@ -1223,7 +1237,7 @@ def Trainer_Previous_Trainees(request, id):
         if request.session.has_key('usernametm1'):
             usernametm1 = request.session['usernametm1']
         else:
-            return redirect('/')
+            usernametm1 = "dummy"
     
         mem = user_registration.objects.filter(
             designation_id=usernametm) .filter(fullname=usernametm1)
@@ -1231,7 +1245,8 @@ def Trainer_Previous_Trainees(request, id):
         des = designation.objects.get(designation='trainee')
         vars = user_registration.objects.filter(
             team=d.id).filter(designation=des.id).order_by('-id')
-        return render(request, 'Trainer_Previous_Trainees_manager.html', {'vars': vars, 'mem': mem})
+        vars1 = previousTeam.objects.filter(teamname=id)
+        return render(request, 'Trainer_Previous_Trainees_manager.html', {'vars': vars, 'mem': mem,'vars1':vars1})
 
     else:
         return redirect('/')
@@ -1389,7 +1404,9 @@ def trainer_dashboard(request):
     
         
         z = user_registration.objects.filter(id=usernametrnr2)
-    
+        des = designation.objects.get(designation='trainee')
+        le = leave.objects.filter(designation_id=des.id,leaveapprovedstatus=0).all()
+       
         labels = []
         data = []
         queryset = user_registration.objects.filter(id=usernametrnr2)
@@ -1398,7 +1415,7 @@ def trainer_dashboard(request):
             
             
             data=[i.workperformance,i.attitude,i.creativity]
-        return render(request, 'trainer_dashboard.html', {'z': z ,'labels': labels,'data': data,})
+        return render(request, 'trainer_dashboard.html', {'z': z ,'labels': labels,'data': data,'le':le})
     else:
         return redirect('/')
 
@@ -1829,10 +1846,12 @@ def trainer_previoustrainees(request, id):
         d = create_team.objects.get(id=id)
         des = designation.objects.get(designation='trainee')
         mem = user_registration.objects.filter(designation_id=des.id).filter(team_id=d)
-        return render(request, 'trainer_previous_trainess_list.html', {'mem': mem, 'z': z})
+        memm=previousTeam.objects.filter(teamname=d)
+        return render(request, 'trainer_previous_trainess_list.html', {'mem': mem, 'z': z,'memm': memm})
 
     else:
         return redirect('/')
+
 def trainer_previoustraineesdetails(request, id):
     if 'usernametrnr2' in request.session:
         
@@ -3066,7 +3085,7 @@ def BRadmin_profiledash(request):
         if request.session.has_key('Adm_id'):
             Adm_id = request.session['Adm_id']
         else:
-            return redirect('/')
+            variable="dummy"
         Adm = user_registration.objects.filter(id=Adm_id)
         Num = user_registration.objects.count()
         Num1 = project.objects.count()
@@ -3074,15 +3093,19 @@ def BRadmin_profiledash(request):
         trcount=user_registration.objects.filter(designation=Trainer).count()
         Man1 = designation.objects.get(designation='Manager')
         Man2 = user_registration.objects.filter(designation = Man1)
+        des=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(leaveapprovedstatus=0).exclude(designation_id=des.id)
         labels = []
         data = []
         queryset = user_registration.objects.filter(id=Adm_id)
+
         for i in queryset:
                 labels=[i.workperformance,i.attitude,i.creativity]
                 data=[i.workperformance,i.attitude,i.creativity]
-        return render(request,'BRadmin_profiledash.html',{'labels':labels,'data':data,'Num1':Num1,'Man1':Man2,'Adm':Adm,'num':Num,'trcount':trcount}) 
+        return render(request,'BRadmin_profiledash.html',{'labels':labels,'data':data,'Num1':Num1,'Man1':Man2,'Adm':Adm,'num':Num,'trcount':trcount,'le':le}) 
     else:
         return redirect('/')
+
 
 def BRadmin_employees(request):
     if 'Adm_id' in request.session:
@@ -5438,17 +5461,23 @@ def pmanager_dash(request):
         if request.session.has_key('prid'):
             prid = request.session['prid']
         else:
-           return redirect('/')
+            variable = "dummy"
         pro = user_registration.objects.filter(id=prid)
         labels = []
         data = []
         queryset = user_registration.objects.filter(id=prid)
+        des=designation.objects.get(designation="team leader")
+        des1=designation.objects.get(designation="developer")
+        dev = user_registration.objects.filter(projectmanager_id=prid)
+        ids=dev.values_list('id',flat="true")
+        le=leave.objects.filter(user_id__in=ids.all()).filter(Q(designation_id=des.id ) | Q(designation_id=des1.id)).filter(leaveapprovedstatus=0).order_by('-id')
         for i in queryset:
             labels=[i.workperformance,i.attitude,i.creativity]
             
             
             data=[i.workperformance,i.attitude,i.creativity]
-        return render(request, 'pmanager_dash.html',{'pro':pro,"labels":labels,"data":data})
+          
+        return render(request, 'pmanager_dash.html',{'pro':pro,"labels":labels,"data":data,'le':le})
     else:
         return redirect('/')
 
@@ -6285,15 +6314,45 @@ def TLdashboard(request):
         if request.session.has_key('tlid'):
             tlid = request.session['tlid']
         else:
-            return redirect('/')
+            variable="dummy"
         mem = user_registration.objects.filter(id=tlid)
         labels = []
         data = []
         queryset = user_registration.objects.filter(id=tlid)
+        dev = user_registration.objects.filter(tl_id=tlid)
+        ids=dev.values_list('id',flat="true") 
+        des=designation.objects.get(designation="developer")
+        le=leave.objects.filter(user_id__in=ids.all(),designation_id=des.id,leaveapprovedstatus=0)
+
+        # val=user_registration.objects.get(id=tlid)
+        # cv=int(val.confirm_salary)
+        # # days=acnt_monthdays.objects.latest('id')
+        # # tday=days.month_workingdays
+        # # salary_day = cv/tday
+        # year = date.today().year
+        # month=date.today().month
+   
+        # days = acnt_monthdays.objects.get(month_fromdate__year__gte=year,
+        #             month_fromdate__month__gte=month,
+        #             month_todate__year__lte=year,
+        #             month_todate__month__lte=month)
+        # tdays=days.month_workingdays
+        # tholi=days.month_holidays
+        # salary_day = cv/tdays
+        # les=acntspayslip.objects.get(user_id=tlid)
+        # leno=les.leavesno
+        # mm=tholi-leno
+        # bb=tdays-mm
+
+        # lesalary=leno*salary_day
+        # to_salary=math.ceil(cv-lesalary) 
+
+     
+    
         for i in queryset:
             labels=[i.workperformance,i.attitude,i.creativity]
             data=[i.workperformance,i.attitude,i.creativity]
-        return render(request, 'TLdashboard.html',{'labels':labels,'data':data,'mem':mem})
+        return render(request, 'TLdashboard.html',{'labels':labels,'data':data,'mem':mem,'le':le})
     else:
         return redirect('/')
 def tldevview(request,id):
@@ -7770,7 +7829,12 @@ def trainee_payment_addpayment(request):
             member = user_registration.objects.get(id=usernametrns2)
             co = course.objects.get(id = member.course_id)
             member.total_pay=int(request.POST['amount'])+member.total_pay
-            member.payment_balance = co.total_fee - member.total_pay
+            member.payment_balance = member.total_amount - member.total_pay
+
+            member.payment_file_downlod=request.FILES['files']
+            member.payment_status=0
+            member.payment_amount_date = request.POST['paymentdate']
+
             member.save()
             ad.save()
             return redirect('/trainee_payment')
@@ -8325,27 +8389,67 @@ def accounts_print(request,id,tid):
         return render(request,'accounts_print.html', {'acc':acc, 'user':user,'z':z})
     else:
         return redirect('/')
-        
+
+
+
 def acntpaypdf(request,id,tid):
     date = datetime.now()  
     user = user_registration.objects.get(id=tid)
     acc = acntspayslip.objects.get(id=id)
-    template_path = 'acntpaypdf.html'
-    context = {'acc':acc, 'user':user,
-    'media_url':settings.MEDIA_URL,
-    'date':date,
-    }
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename="Payslip.pdf"'
-    template = get_template(template_path)
-    html = template.render(context)
-    pisa_status = pisa.CreatePDF(
-       html, dest=response)
-    if pisa_status.err:
-       return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
-        
-        
+    print(acc)
+    year = date.today().year
+    month = date.today().month
+
+    leave = acnt_monthdays.objects.get(month_fromdate__year__gte=year,
+                                          month_fromdate__month__gte=month,
+                                          month_todate__year__lte=year,
+                                          month_todate__month__lte=month)
+    mm = leave.month_workingdays
+    m = leave.month_holidays
+    print(mm)
+    abc = int(user.confirm_salary)
+    print(abc)
+    c = abc/mm
+    v = acc.leavesno
+    z=v-m
+    mem = mm-z
+    if mem == '-':
+        mem=0
+        conf = abc-c
+        words = num2words(conf)
+        template_path = 'acntpaypdf.html'
+        context = {'acc':acc, 'user':user,'c':c,'mm':mm,'mem':mem,'conf':conf,'words':words,
+        'media_url':settings.MEDIA_URL,
+        'date':date,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="Payslip.pdf"'
+        template = get_template(template_path)
+        html = template.render(context)
+        pisa_status = pisa.CreatePDF(
+        html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    else:
+    
+        conf = abc-c
+        words = num2words(conf)
+        template_path = 'acntpaypdf.html'
+        context = {'acc':acc, 'user':user,'c':c,'mm':mm,'mem':mem,'conf':conf,'words':words,
+        'media_url':settings.MEDIA_URL,
+        'date':date,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="Payslip.pdf"'
+        template = get_template(template_path)
+        html = template.render(context)
+        pisa_status = pisa.CreatePDF(
+        html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+
     #************************Reset password*****************************
 def reset_password(request):
     if request.method == "POST":
@@ -8654,8 +8758,10 @@ def SuperAdmin_dashboard(request):
                 SAdm_id = request.session['SAdm_id']
         users = User.objects.filter(id=SAdm_id)
         branch = branch_registration.objects.all()
+        des=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(leaveapprovedstatus=0).exclude(designation_id=des.id)
         
-        return render(request, 'SuperAdmin_dashboard.html',{'branch_registration':branch,'users':users}) 
+        return render(request, 'SuperAdmin_dashboard.html',{'branch_registration':branch,'users':users,'le':le}) 
     else:
         return redirect('/')
 
@@ -9568,6 +9674,675 @@ def SuperAdminreply(request,id):
             return render(request,'SuperAdmin_ReportedissueShow.html',{'users':users})
     else:
         return redirect('/')
+
+
+#********************new*****************************
+
+def accounts_traineepayment_notverified(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id= usernameacnt2)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
+        return render(request,'accounts_traineepayment_notverified.html', { 'z' : z, 'deta':deta})
+    else:
+        return redirect('/')
+
+def verified(request,id):
+    rem = user_registration.objects.get(id=id)
+    rem.payment_status = 2
+    rem.save()
+    return redirect('/accounts_traineepayment_notverified')
+
+def accounts_traineepayment_pending(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id= usernameacnt2)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
         
+        return render(request,'accounts_traineepayment_pending.html', { 'z' : z, 'deta': deta })
+    else:
+        return redirect('/')
+
+def accounts_newtrainees(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id= usernameacnt2)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
+        return render(request,'accounts_newtrainees.html', { 'z' : z, 'deta':deta })
+    else:
+        return redirect('/')
+
+
+
+def accounts_salary_employees(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        des2 = designation.objects.get(designation='trainee')
+        Adm1 = designation.objects.get(designation="Admin")
+        vars = user_registration.objects.exclude(designation=des2.id).exclude(designation=Adm1.id).order_by("-id")
+        return render(request,'accounts_salary_employees.html', {'z':z,'vars':vars})
+    else:
+        return redirect('/')   
+    
+def accounts_salaryconfirm(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
         
+        des2 = designation.objects.get(designation='trainee')
+        Adm1 = designation.objects.get(designation="Admin")
+        vars = user_registration.objects.exclude(designation=des2.id).exclude(designation=Adm1.id).order_by("-id")
+        if request.method=='POST':
+           var = user_registration.objects.get(id=id)
+           var.confirm_salary = request.POST['salary']
+           var.confirm_salary_status = 1
+           var.save()
+           msg_success = "submitted successfully"
+           return render(request,'accounts_salary_employees.html', {'z':z,'vars':vars,'msg_success':msg_success})
+        return render(request,'accounts_salary_employees.html', {'z':z,'vars':vars})
+    else:
+        return redirect('/') 
+        
+def accounts_salaried_employees(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        vars = user_registration.objects.filter(confirm_salary_status=1).order_by("-id")
+        return render(request,'accounts_salaried_employees.html', {'z':z,'vars':vars})
+    else:
+        return redirect('/')
+
+
+def accounts_monthdays_cards(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        return render(request,'accounts_monthdays_cards.html',{'z':z})
+    else:
+        return redirect('/')
+
+def accounts_month_adddays_form(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        mem=acnt_monthdays()
+        if request.method == 'POST':
+            mem.month_fromdate = request.POST['fromdate']
+            mem.month_todate = request.POST['todate']
+            mem.month_workingdays = request.POST['workingdays']
+            mem.month_holidays = request.POST['holidays']
+            mem.save()
+            msg_success='submitted succesfully'
+            return render(request,'accounts_month_adddays_form.html',{'z':z,'msg_success':msg_success})
+        
+        return render(request,'accounts_month_adddays_form.html',{'z':z})
+    else:
+        return redirect('/')
+
+def accounts_month_viewdays(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        mem= acnt_monthdays.objects.all()
+        
+        return render(request,'accounts_month_viewdays.html',{'z':z,'mem':mem})
+    else:
+        return redirect('/')
+
+
+def SuperAdmin_leavehistory(request):
+    if 'SAdm_id' in request.session:
+        if request.session.has_key('SAdm_id'):
+                SAdm_id = request.session['SAdm_id']
+        users = User.objects.filter(id=SAdm_id)
+        usr=user_registration.objects.all()
+        des=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(leaveapprovedstatus=0).exclude(designation_id=des.id).order_by('-id')
+        return render(request,'SuperAdmin_leavehistory.html', {'users':users,'le':le})
+    else:
+        return redirect('/')
+        
+
+
+def SuperAdmin_leaveapprovedstatus(request,id):
+    if 'SAdm_id' in request.session:
+        if request.session.has_key('SAdm_id'):
+                SAdm_id = request.session['SAdm_id']
+        users = User.objects.filter(id=SAdm_id)
+        usr=user_registration.objects.all()
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave Approved Successfully"
+        return render(request,'SuperAdmin_leavehistory.html', {'users':users,'msg_success':msg_success})
+    else:
+        return redirect('/')
+
+
+
+def SuperAdmin_rejectedstatus(request,id):
+    if 'SAdm_id' in request.session:
+        if request.session.has_key('SAdm_id'):
+                SAdm_id = request.session['SAdm_id']
+        users = User.objects.filter(id=SAdm_id)
+        usr=user_registration.objects.all()
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request,'SuperAdmin_leavehistory.html', {'users':users,'msg_warning':msg_warning})
+    else:
+        return redirect('/')
+
+
+
+
+        
+def projectMAN_leavehistory(request):
+    if 'prid' in request.session:
+        if request.session.has_key('prid'):
+            prid = request.session['prid']
+        pro = user_registration.objects.filter(id=prid)
+        des=designation.objects.get(designation="team leader")
+        des1=designation.objects.get(designation="developer")
+         
+        dev = user_registration.objects.filter(projectmanager_id=prid)
+        ids=dev.values_list('id',flat="true")
+        le=leave.objects.filter(user_id__in=ids.all()).filter(Q(designation_id=des.id ) | Q(designation_id=des1.id)).filter(leaveapprovedstatus=0).order_by('-id')
+        return render(request,'projectMAN_leavehistory.html',{'pro':pro,'le':le})
+    else:
+        return redirect('/')
+
+
+def projectMAN_leaveapprovedstatus(request,id):
+    if 'prid' in request.session:
+        if request.session.has_key('prid'):
+            prid = request.session['prid']
+        pro = user_registration.objects.filter(id=prid)
+     
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave aprroved Successfully"
+        return render(request,'projectMAN_leavehistory.html',{'pro':pro,'msg_success':msg_success})
+    else:
+        return redirect('/')
+
+
+
+def projectMAN_rejectedstatus(request,id):
+    if 'prid' in request.session:
+        if request.session.has_key('prid'):
+            prid = request.session['prid']
+        pro = user_registration.objects.filter(id=prid)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request,'projectMAN_leavehistory.html',{'pro':pro,'msg_warning':msg_warning})
+    else:
+        return redirect('/')
+
+
+def TL_leavehistory(request):
+    if 'tlid' in request.session:
+        if request.session.has_key('tlid'):
+            tlid = request.session['tlid']
+        if request.session.has_key('tlteam'):
+            tlteam = request.session['tlteam']
+        
+        else:
+            variable="dummy"
+
+        mem = user_registration.objects.filter(id=tlid)
+        
+        dev = user_registration.objects.filter(tl_id=tlid)
+        ids=dev.values_list('id',flat="true")
+        
+        des=designation.objects.get(designation="developer")
+        le=leave.objects.filter(user_id__in=ids.all(),designation_id=des.id,leaveapprovedstatus=0).order_by('-id')
+        return render(request,'TL_leavehistory.html',{'mem':mem,'le':le})
+    else:
+        return redirect('/')
+
+
+def TL_leaveapprovedstatus(request,id):
+    if 'tlid' in request.session:
+        if request.session.has_key('tlid'):
+            tlid = request.session['tlid']
+        else:
+            variable="dummy"
+        mem = user_registration.objects.filter(id=tlid)
+     
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave aprroved Successfully"
+        return render(request,'TL_leavehistory.html',{'mem':mem,'msg_success':msg_success})
+    else:
+        return redirect('/')
+
+
+
+def TL_rejectedstatus(request,id):
+    if 'tlid' in request.session:
+        if request.session.has_key('tlid'):
+            tlid = request.session['tlid']
+        else:
+            variable="dummy"
+        mem = user_registration.objects.filter(id=tlid)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request,'TL_leavehistory.html',{'mem':mem,'msg_warning':msg_warning})
+    else:
+        return redirect('/')
+
+def trainer_leavehistory(request):
+    if 'usernametrnr2' in request.session:
+        
+        if request.session.has_key('usernametrnr2'):
+            usernametrnr2 = request.session['usernametrnr2']
+        if request.session.has_key('usernametrnr3'):
+            usernametrnr3 = request.session['usernametrnr3']
+  
+        mem= user_registration.objects.filter(id=usernametrnr2)
+        tr= user_registration.objects.filter(team_id=usernametrnr3)
+        ids=tr.values_list('id',flat="true")
+        print('haiiii')
+        print(usernametrnr3)
+        des = designation.objects.get(designation='trainee')
+        le = leave.objects.filter(designation_id=des.id,leaveapprovedstatus=0).all().order_by('-id')
+        return render(request, 'trainer_leavehistory.html', {'le': le, 'mem': mem})
+
+    else:
+        return redirect('/')
+   
+
+
+def trainer_leaveapprovedstatus(request,id):
+    if 'usernametrnr2' in request.session:
+        
+        if request.session.has_key('usernametrnr2'):
+            usernametrnr2 = request.session['usernametrnr2']
+        if request.session.has_key('usernametrnr3'):
+            usernametrnr3 = request.session['usernametrnr3']
+  
+        mem= user_registration.objects.filter(id=usernametrnr2)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave Approved successfully"
+        return render(request, 'trainer_leavehistory.html', {'mem': mem,'msg_success':msg_success})
+    else:
+        return redirect('/')
+
+
+
+def trainer_rejectedstatus(request,id):
+    if 'usernametrnr2' in request.session:
+        
+        if request.session.has_key('usernametrnr2'):
+            usernametrnr2 = request.session['usernametrnr2']
+        if request.session.has_key('usernametrnr3'):
+            usernametrnr3 = request.session['usernametrnr3']
+  
+        mem= user_registration.objects.filter(id=usernametrnr2)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request, 'trainer_leavehistory.html', {'mem': mem,'msg_warning':msg_warning})
+    else:
+        return redirect('/')
+
+
+def tm_leavehistory(request):
+    if 'usernametm2' in request.session:
+        if request.session.has_key('usernametm'):
+            usernametm = request.session['usernametm']
+        if request.session.has_key('usernametm1'):
+            usernametm1 = request.session['usernametm1']
+        if request.session.has_key('usernametm2'):
+            usernametm2 = request.session['usernametm2']
+        else:
+            usernametm1 = "dummy"
+        mem = user_registration.objects.filter(id=usernametm2)
+        des=designation.objects.get(designation="trainer")
+        des1=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(Q(designation_id=des.id ) | Q(designation_id=des1.id)).filter(leaveapprovedstatus=0).order_by('-id')
+       
+        return render(request,'tm_leavehistory.html', {'mem': mem,'le':le})
+    else:
+        return redirect('/')
+
+def tm_leaveapprovedstatus(request,id):
+    if 'usernametm2' in request.session:
+        if request.session.has_key('usernametm'):
+            usernametm = request.session['usernametm']
+        if request.session.has_key('usernametm1'):
+            usernametm1 = request.session['usernametm1']
+        if request.session.has_key('usernametm2'):
+            usernametm2 = request.session['usernametm2']
+        else:
+            usernametm1 = "dummy"
+        mem = user_registration.objects.filter(id=usernametm2)
+
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave Approved successfully"
+        return render(request,'tm_leavehistory.html', {'mem': mem,'msg_success':msg_success})
+        
+    else:
+        return redirect('/')
+
+
+
+def tm_rejectedstatus(request,id):
+    if 'usernametm2' in request.session:
+        if request.session.has_key('usernametm'):
+            usernametm = request.session['usernametm']
+        if request.session.has_key('usernametm1'):
+            usernametm1 = request.session['usernametm1']
+        if request.session.has_key('usernametm2'):
+            usernametm2 = request.session['usernametm2']
+        else:
+            usernametm1 = "dummy"
+        mem = user_registration.objects.filter(id=usernametm2)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request,'tm_leavehistory.html', {'mem':mem,'msg_warning':msg_warning})
+    else:
+        return redirect('/')
+
+def BRadmin_leavehistory(request):
+    if 'Adm_id' in request.session:
+        
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        
+        Adm = user_registration.objects.filter(id=Adm_id)
+        des=designation.objects.get(designation="trainee")
+        le=leave.objects.filter(leaveapprovedstatus=0).exclude(designation_id=des.id).order_by('-id')
+        return render(request,'BRadmin_leavehistory.html', {'Adm': Adm,'le':le})
+    else:
+        return redirect('/')
+
+
+def BRadmin_leaveapprovedstatus(request,id):
+    if 'Adm_id' in request.session:
+        
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        
+        Adm = user_registration.objects.filter(id=Adm_id)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=1
+        le.save()
+        msg_success="Leave aprroved Successfully"
+        return render(request,'BRadmin_leavehistory.html', {'Adm': Adm,'msg_success':msg_success})
+    else:
+        return redirect('/')
+
+
+
+def BRadmin_rejectedstatus(request,id):
+    if 'Adm_id' in request.session:
+        
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        
+        Adm = user_registration.objects.filter(id=Adm_id)
+       
+        le=leave.objects.get(id=id)
+        le.leaveapprovedstatus=2
+        le.leave_rejected_reason=request.POST['review']
+        le.save()
+        msg_warning="Leave Rejected Successfully"
+        return render(request,'BRadmin_leavehistory.html', {'Adm': Adm,'msg_warning':msg_warning})
+    else:
+        return redirect('/')       
+
+def accounts_account_salary(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)          
+        user=user_registration.objects.get(id=usernameacnt2)
+        acc=acntspayslip.objects.get(user_id=user)
+        return render(request,'accounts_account_salary.html', {'acc':acc ,'user':user,'z':z})
+    else:
+        return redirect('/')
+        
+def accounts_accout_salary_slip(request,id):
+    date = datetime.now()  
+    user = user_registration.objects.get(id=id)
+    acc = acntspayslip.objects.get(user_id=id)
+    print(acc)
+    year = date.today().year
+    month = date.today().month
+
+    leave = acnt_monthdays.objects.get(month_fromdate__year__gte=year,month_fromdate__month__gte=month,month_todate__year__lte=year,month_todate__month__lte=month)
+    mm = leave.month_workingdays
+    print(mm)
+    abc = int(user.confirm_salary)
+    print(abc)
+    c = abc/mm
+    v = acc.leavesno
+    mem = mm-v
+    print(v)
+    conf = abc-c
+    template_path = 'accounts_accout_salary_slip.html'
+    context = {'acc':acc, 'user':user,'c':c,'mm':mm,'mem':mem,'conf':conf,'media_url':settings.MEDIA_URL,'date':date,
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="Payslip.pdf"'
+    template = get_template(template_path)
+    html = template.render(context)
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response       
+        
+def accounts_salary_pending(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        vars = user_registration.objects.filter(salary_status=0)
+        return render(request,'accounts_salary_pending.html', {'z':z,'vars':vars})
+    else:
+        return redirect('/')
+
+def salarysubmit(request,id):
+    if request.method == 'POST':
+            m = user_registration.objects.get(id=id)
+            m.salary_status = 1
+            m.save()
+            return redirect('/accounts_salary_pending')
+    return redirect('/accounts_salary_pending')
+  
+def accounts_salary_given(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        vars = user_registration.objects.filter(salary_status=1)
+        return render(request,'accounts_salary_given.html', {'z':z,'vars':vars})
+    else:
+        return redirect('/')
+
+def accounts_promissory(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)  
+        user=user_registration.objects.get(id=id)
+        
+    return render(request,'accounts_promissory.html',{'z':z,'user':user})
+
+def accounts_download_promissory(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)  
+        user=user_registration.objects.get(id=id)
+        c=Promissory.objects.filter(user_id=id).latest('id')
+        print(c)
+    return render(request,'accounts_download_promissory.html',{'z':z,'user':user,'c':c})
+        
+def accounts_promissory_complete_pfd(request,id):
+    date = datetime.now()   
+    mem = Promissory.objects.filter(user_id=id).latest('id')
+    template_path = 'accounts_promissory_complete_pfd.html'
+    context = {'mem': mem,
+    'media_url':settings.MEDIA_URL,
+    'date':date
+    }
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    response['Content-Disposition'] = 'filename="PROMISSORY.pdf"'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    
+
+
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+    # return render(request,'accounts_promissory_complete_pfd.html')
+
+def accounts_promissory_notcomplete_pfd(request,id):
+    date = datetime.now()   
+    mem = Promissory.objects.filter(user_id=id).latest('id')
+    a=num2words(mem.user_id.total_pay)
+    b=(u'u20B9')
+    
+    template_path = 'accounts_promissory_notcomplete_pfd.html'
+    context = {'mem': mem,'a': a,'b':b,
+    'media_url':settings.MEDIA_URL,
+    'date':date
+    }
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    response['Content-Disposition'] = 'filename="PROMISSORY.pdf"'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    
+
+
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+def accounts_promissory_add(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2) 
+    mem = user_registration.objects.get(id=id)
+    
+
+     
+    print(mem)
+    if request.method == "POST":
+
+        user = Promissory()
+        user.user_id =user_registration.objects.get(id=id)
+        user.inital_amount = request.POST['in_amt']
+        user.inital_paid_on = request.POST['in_paid_on']
+        user.inital_paid_amount = request.POST['in_paid_amt']
+        user.inital_paid_date = request.POST['in_paid_date']
+        user.inital_balance_amount = request.POST['in_bal_amt']
+        user.inital_due_date = request.POST['in_due_date']
+        user.inital_total_payment = request.POST['in_tot_pay']
+
+        user.second_amount = request.POST['sec_amt']
+        user.second_due_on = request.POST['sec_paid_on']
+        user.second_paid_amount = request.POST['sec_paid_amt']
+        user.second_paid_date = request.POST['sec_paid_date']
+        user.second_balance_amount = request.POST['sec_bal_amt']
+        user.second_due_date = request.POST['sec_due_date']
+        user.second_total_payment = request.POST['sec_tot_pay']
+
+        user.final_amount = request.POST['fnl_amt']
+        user.final_due_on = request.POST['fnl_paid_on']
+        user.final_paid_amount = request.POST['fnl_paid_amt']
+        user.final_paid_date = request.POST['fnl_paid_date']
+        user.final_balance_amount = request.POST['fnl_bal_amt']
+        user.final_due_date = request.POST['fnl_due_date'] 
+        user.final_total_payment = request.POST['fnl_tot_pay']
+        user.save()
+        msg_success = "Add Successfully"
+        return render(request,'accounts_promissory_add.html',{'z':z,'msg_success':msg_success})      
+
+    return render(request,'accounts_promissory_add.html',{'z':z})
+
+
+def test(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+    user=user_registration.objects.get(id=id)
+    c=Promissory.objects.filter(user_id=id).latest('id') 
+    
+    user = Promissory.objects.get(user_id=id)        
+    user.complete_status = 1
+    user.save()
+    msg_success = "Status Change To Competed"
+        #return redirect('/accounts_registration_details')   
+        #return render(request,'accounts_download_promissory.html',{'z':z,'msg_success':msg_success,'user':user,'c':c})
+    return render(request,'accounts_download_promissory.html',{'z':z,'user':user,'c':c,'msg_success':msg_success,})
+
+
+
+
+
         
