@@ -1157,6 +1157,11 @@ urlpatterns = [
     re_path(r'^accounts_promissory_complete_pfd/(?P<id>\d+)/$', views.accounts_promissory_complete_pfd, name='accounts_promissory_complete_pfd'),
     re_path(r'^accounts_promissory_notcomplete_pfd/(?P<id>\d+)/$', views.accounts_promissory_notcomplete_pfd, name='accounts_promissory_notcomplete_pfd'),
     re_path(r'^accounts_promissory_add/(?P<id>\d+)/$', views.accounts_promissory_add, name='accounts_promissory_add'),
+    re_path(r'^accounts_workstatus/$', views.accounts_workstatus, name='accounts_workstatus'),
+    re_path(r'^accounts_designation/$', views.accounts_designation, name='accounts_designation'),
+    re_path(r'^accounts_emp_ajax/$', views.accounts_emp_ajax, name='accounts_emp_ajax'),
+    re_path(r'^accounts_project_details/$', views.accounts_project_details, name='accounts_project_details'),
+    re_path(r'^accounts_add_bank_acnt_update/(?P<id>\d+)/$', views.accounts_add_bank_acnt_update, name='accounts_add_bank_acnt_update'),
     re_path(r'^test/(?P<id>\d+)/$', views.test, name='test'),
 ]
 

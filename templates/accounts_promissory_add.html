@@ -73,7 +73,7 @@
                                             style="padding-left:4px ;padding-top:10px;width:200px;">Due Date</label>
                                     </div>
                                     <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                        <input type="text" class="form-control text-light" name="in_due_date" >
+                                        <input type="date" class="form-control text-light" name="in_due_date" >
                                     </div><br><br>
                                 </div>
                                 <div class="row">
@@ -82,7 +82,7 @@
                                             style="padding-left:4px ;padding-top:10px; width:110px;">Total Payments</label>
                                     </div>
                                     <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                        <input type="date" class="form-control text-light" name="in_tot_pay" ><br><br>
+                                        <input type="text" class="form-control text-light" name="in_tot_pay" ><br><br>
                                     </div>
                                 
                                     
@@ -151,7 +151,7 @@
                                     style="padding-left:4px ;padding-top:10px;width:200px;">Due Date</label>
                             </div>
                             <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                <input type="text" class="form-control text-light" name="sec_due_date" >
+                                <input type="date" class="form-control text-light" name="sec_due_date" >
                             </div><br><br>
                         </div>
                         <div class="row">
@@ -160,7 +160,7 @@
                                     style="padding-left:4px ;padding-top:10px; width:110px;">Total Payments</label>
                             </div>
                             <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                <input type="date" class="form-control text-light" name="sec_tot_pay" ><br><br>
+                                <input type="text" class="form-control text-light" name="sec_tot_pay" ><br><br>
                             </div>
                         
                             
@@ -231,7 +231,7 @@
                                     style="padding-left:4px ;padding-top:10px;width:200px;">Due Date</label>
                             </div>
                             <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                <input type="text" class="form-control text-light" name="fnl_due_date" >
+                                <input type="date" class="form-control text-light" name="fnl_due_date" >
                             </div><br><br>
                         </div>
                         <div class="row">
@@ -240,7 +240,7 @@
                                     style="padding-left:4px ;padding-top:10px; width:110px;">Total Payments</label>
                             </div>
                             <div class="col-12 col-sm-12 col-md-3 col-lg-3">
-                                <input type="date" class="form-control text-light" name="fnl_tot_pay" ><br><br>
+                                <input type="text" class="form-control text-light" name="fnl_tot_pay" ><br><br>
                             </div>
                         
                             
@@ -268,6 +268,19 @@
     </div>
 </div>
 
-
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if msg_success %}
+<script>
+  Swal.fire({
+    position: 'center',
+    icon: 'success',
+    text: '{{ msg_success }}',
+    showConfirmButton: false,
+    timer: 1500
+  }).then(function () {
+    javascript: history.go(-2);
+  })
+</script>
+{% endif %}
 
 {% endblock %}
