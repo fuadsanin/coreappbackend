@@ -139,6 +139,7 @@ class user_registration(models.Model):
     payment_amount_date =models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
     salary_pending = models.CharField(max_length=100, default='')
     salary_status =  models.CharField(max_length=10, default='')
+    trainer_level = models.CharField(max_length=20, default='')
    
     def __str__(self):
         return self.fullname
@@ -290,6 +291,7 @@ class previousTeam(models.Model):
     teamname = models.ForeignKey(create_team, on_delete=models.SET_NULL, related_name='teamname', null=True, blank=True)
     user =  models.ForeignKey(user_registration, on_delete=models.SET_NULL, related_name='user1',null=True,blank=True)
     pstatus = models.CharField(max_length=200)
+    progress = models.IntegerField(default='0')
 
 class tester_status(models.Model):
     tester = models.ForeignKey(user_registration, on_delete=models.SET_NULL,
@@ -364,6 +366,12 @@ class leave(models.Model):
         return self.user
 
 
+class internship_type(models.Model):
+    type = models.CharField(max_length=100)
+    duration = models.CharField(max_length=100)
+    fee = models.CharField(max_length=100)
+
+
 class internship(models.Model):
     branch = models.ForeignKey(branch_registration, on_delete=models.SET_NULL,
                                related_name='internshipbranch', null=True, blank=True)
@@ -387,10 +395,26 @@ class internship(models.Model):
     guide = models.CharField(max_length=200)
     qr = models.CharField(max_length=200, default='')
     status = models.CharField(max_length=200)
-
+    complete_status =models.CharField(max_length=10,default='0')
+    verify_status =models.CharField(max_length=10,default='0')
+    total_fee = models.IntegerField(default='')
+    amount = models.IntegerField(default='')
+    pay_date = models.DateField(default='')
+    balence = models.IntegerField(default='')
+    total_pay =models.IntegerField(default='')
+    internshiptype = models.ForeignKey(internship_type,on_delete=models.SET_NULL,related_name='internship_type', null=True, blank=True)
     
     def __str__(self):
         return self.fullname
+
+
+class internship_paydata(models.Model):
+    date = models.DateField()
+    internship_user = models.ForeignKey(internship,on_delete=models.SET_NULL,
+                             related_name='internship_user', null=True, blank=True)
+    amount = models.IntegerField()
+
+
 
 
 class trainer_task(models.Model):
