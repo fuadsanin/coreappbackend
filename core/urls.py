@@ -1165,6 +1165,11 @@ urlpatterns = [
     re_path(r'^test/(?P<id>\d+)/$', views.test, name='test'),
     re_path(r'^DEVpayments/$', views.DEVpayments, name="DEVpayments"),
     re_path(r'^TLpayment/$', views.TLpayment, name="TLpayment"),
+    re_path(r'^trainingmanager_payment_list/$',views.trainingmanager_payment_list, name="trainingmanager_payment_list"),
+    re_path(r'^paypdf/(?P<id>\d+)/(?P<tid>\d+)/$', views.paypdf,name="paypdf"),
+    re_path(r'^trainer_payment_list/$',views.trainer_payment_list, name="trainer_payment_list"),
+    re_path(r'^MAN_payment_list/$',views.MAN_payment_list, name="MAN_payment_list"),
+    re_path(r'^projectmanager_payment_list/',views.projectmanager_payment_list, name="projectmanager_payment_list"),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
