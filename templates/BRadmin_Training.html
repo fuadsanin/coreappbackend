@@ -2,7 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!-- <div class="content-wrapper"> -->
   <center>
     <div class="row " style="margin-top: 20px;">
       {% for i in team %}
@@ -14,14 +13,7 @@
             <div class="card-body">
               <h5>{{ i.name }}</h5>
               <div class="row">
-                {% comment %} <div class="col-8 col-sm-12 col-xl-8 my-auto">
-                  <div class="d-flex d-sm-block d-md-flex align-items-center">
-                    <h2 class="mb-0"></h2>
-                    <!-- <p class="text-success ms-2 mb-0 font-weight-medium">+3.5%</p> -->
-                  </div>
-                  <!-- <h6 class="text-muted font-weight-normal">11.38% Since last month</h6> -->
-                </div>
-                <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right"> {% endcomment %}
+               
                 <div class="col-12 col-sm-12 col-xl-12 text-center text-xl-right">
                   <i class="icon-lg mdi mdi-account-group text-primary ms-auto"></i>
                 </div>
@@ -37,5 +29,5 @@
 
 
   </center>
-<!-- </div> -->
+
 {% endblock %}

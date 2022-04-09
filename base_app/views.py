@@ -3446,9 +3446,7 @@ def BRadmin_Training(request, id):
         else:
             return redirect('/')
         Adm = user_registration.objects.filter(id=Adm_id)
-        # team=create_team.objects.filter(user_id=id)
-        # return render(request,'BRadmin_Training.html',{'team':team})
-        # team=create_team.objects.all()
+        
         user = user_registration.objects.filter(id=id)
         team = create_team.objects.all()
         return render(request, 'BRadmin_Training.html', {'team': team, 'user': user, 'Adm': Adm})
