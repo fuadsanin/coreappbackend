@@ -10,7 +10,7 @@
             <h6 class="mb-1">Joining Date</h6>
           </div>
           <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-            <h6 class="text-muted mb-0">{{names.joiningdate}}</h6>
+            <h6 class="text-muted mb-0">{{names.joiningdate|date:"d-m-Y"}}</h6>
           </div>
         </div>
         <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
@@ -19,6 +19,14 @@
           </div>
           <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
             <h6 class="text-muted mb-0">{{names.designation.designation}}</h6>
+          </div>
+        </div>
+        <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+          <div class="text-md-center text-xl-left">
+            <h6 class="mb-1">Total delay</h6>
+          </div>
+          <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+            <h6 class="text-muted mb-0">{{a}}</h6>
           </div>
         </div>
       </center>

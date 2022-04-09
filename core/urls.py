@@ -1163,6 +1163,8 @@ urlpatterns = [
     re_path(r'^accounts_project_details/$', views.accounts_project_details, name='accounts_project_details'),
     re_path(r'^accounts_add_bank_acnt_update/(?P<id>\d+)/$', views.accounts_add_bank_acnt_update, name='accounts_add_bank_acnt_update'),
     re_path(r'^test/(?P<id>\d+)/$', views.test, name='test'),
+    re_path(r'^DEVpayments/$', views.DEVpayments, name="DEVpayments"),
+    re_path(r'^TLpayment/$', views.TLpayment, name="TLpayment"),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

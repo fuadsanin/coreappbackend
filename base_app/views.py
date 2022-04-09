@@ -1,3 +1,4 @@
+import math
 from num2words import num2words
 from calendar import day_abbr
 from lib2to3.pgen2.pgen import DFAState
@@ -10972,11 +10973,12 @@ def accounts_designation(request):
         z = user_registration.objects.filter(id=usernameacnt2)
 
         dept_id = request.GET.get('dept_id')
-        Desig = designation.objects.filter(department = dept_id).exclude(designation = 'admin').exclude(designation ='manager').exclude(designation ='trainee').exclude(designation ='project manager').exclude(designation ='trainer').exclude(designation ='trainingmanager').exclude(designation ='account')
+        Desig = designation.objects.filter(department = dept_id).exclude(designation = 'admin').exclude(designation ='manager').exclude(designation ='trainee').exclude(designation ='project manager').exclude(designation ='tester').exclude(designation ='trainingmanager').exclude(designation ='account').exclude(designation ='trainer')
        
         return render(request,'accounts_designation.html',{'z':z,'Desig': Desig, })
     else:
         return redirect('/')
+
 
 @csrf_exempt
 def accounts_emp_ajax(request):
@@ -10998,11 +11000,22 @@ def accounts_emp_ajax(request):
 def accounts_project_details(request):
     if 'usernameacnt2' in request.session:
         emp = request.POST['emp']
-        names = user_registration.objects.get(id=emp)
+        names = user_registration.objects.get(id=emp) 
+
+        year = date.today().year
+        month = date.today().month
+
+        leave = project_taskassign.objects.filter(tl_id=emp,startdate__year__gte=year,
+                                          startdate__month__gte=month,
+                                          submitted_date__year__lte=year,
+                                          submitted_date__month__lte=month)
+        mm = leave.values_list('delay', flat='true')
+        a=0
+        for i in mm:
+            
+            a=a+int(i)
         print(emp)
-        print(names)
-        print("hai")       
-        return render(request,'accounts_project_details.html', {'names':names})
+        return render(request,'accounts_project_details.html', {'names':names,'mm':mm,'a':a})
     else:
         return redirect('/')
 
@@ -11027,3 +11040,135 @@ def accounts_add_bank_acnt_update(request,id):
         
         return render(request,'accounts_add_bank_acnt_update.html',{'mem1':mem1,'z': z})
 
+
+
+
+
+
+def DEVpayments(request):
+    if request.session.has_key('devid'):
+        devid = request.session['devid']
+    else:
+        variable = "dummy"
+    dev = user_registration.objects.filter(id=devid)
+    mem1 = user_registration.objects.get(id=devid)
+    var = acntspayslip.objects.filter(user_id =devid)
+    return render(request, 'DEVpayments.html', {'dev': dev, 'var': var,'mem1':mem1})
+    
+    
+def TLpayment(request):
+   if 'tlid' in request.session:
+        if request.session.has_key('tlid'):
+            tlid = request.session['tlid']
+        else:
+            variable="dummy"
+        mem = user_registration.objects.filter(id=tlid)
+        mem1 = user_registration.objects.get(id=tlid)
+        var = acntspayslip.objects.filter(user_id =tlid)
+        return render(request, 'TLpayment.html', {'mem': mem, 'var': var,'mem1':mem1})
+   else:
+        return redirect('/')
+
+def projectmanager_payment_list(request):
+    if 'prid' in request.session:
+        if request.session.has_key('prid'):
+            prid = request.session['prid']
+        else:
+            variable = "dummy"
+        pro = user_registration.objects.filter(id=prid)
+        var = acntspayslip.objects.filter(user_id = prid)
+        b = user_registration.objects.get(id=prid)
+        return render(request, 'projectmanager_payment_list.html', {'pro': pro, 'var': var, 'b':b })
+    else:
+        return redirect('/')
+
+############### training manager ###################################
+
+def trainingmanager_payment_list(request):
+    if 'usernametm2' in request.session:
+        
+        if request.session.has_key('usernametm2'):
+            usernametm2 = request.session['usernametm2']
+       
+        mem = user_registration.objects.filter(id=usernametm2)
+        var = acntspayslip.objects.filter(user_id = usernametm2)
+        return render(request, 'trainingmanager_payment_list.html', {'mem': mem, 'var': var })
+    else:
+        return redirect('/')
+
+########################### pdf #########################
+
+def paypdf(request,id,tid):
+    date = datetime.now()  
+    user = user_registration.objects.get(id=tid)
+    acc = acntspayslip.objects.get(id=id)
+    print(acc)
+    # year = date.today().year
+    # month = date.today().month
+
+    year = acc.fromdate.year
+    month = acc.fromdate.month
+
+    leave = acnt_monthdays.objects.get(month_fromdate__year__gte=year,month_fromdate__month__gte=month,month_todate__year__lte=year,month_todate__month__lte=month)
+    mm = leave.month_workingdays
+    mem = leave.month_holidays
+    v = acc.leavesno
+    mam = mm-v
+    print(mm)
+    abc = int(user.confirm_salary)
+    print(abc)
+    c = math.ceil(abc/mam)
+    
+   
+    
+    print(v)
+    conf = abc-c
+    words = num2words(conf)
+    add = acc.basic_salary+ int(acc.conveyns)+acc.hra+acc.pf_tax+acc.pf+int(acc.esi)+acc.delay+acc.leavesno+acc.incentives
+    template_path = 'paypdf.html'
+    context = {'acc':acc, 'user':user,'c':c,'mm':mm,'mam':mam,'conf':conf,'words':words, 'add':add,
+    'media_url':settings.MEDIA_URL,
+    'date':date,
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="Payslip.pdf"'
+    template = get_template(template_path)
+    html = template.render(context)
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+########################### manager ######################
+
+
+def MAN_payment_list(request):
+    if 'm_id' in request.session:
+        if request.session.has_key('m_id'):
+            m_id = request.session['m_id']
+        else:
+            variable="dummy"
+        mem = user_registration.objects.filter(id=m_id)
+        var = acntspayslip.objects.filter(user_id = m_id)
+        return render(request, 'MAN_payment_list.html', {'mem': mem, 'var': var })
+    else:
+        return redirect('/')
+
+
+############################### trainer #############################
+
+def trainer_payment_list(request):
+    if 'usernametrnr2' in request.session:
+        
+        if request.session.has_key('usernametrnr2'):
+            usernametrnr2 = request.session['usernametrnr2']
+    
+        
+        z = user_registration.objects.filter(id=usernametrnr2)
+    
+        var = acntspayslip.objects.filter(user_id = usernametrnr2)
+        return render(request, 'trainer_payment_list.html', {'z': z, 'var': var })
+    else:
+        return redirect('/')

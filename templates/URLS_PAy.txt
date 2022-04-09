@@ -1,0 +1,26 @@
+urls 
+
+
+trainingmanager
+
+re_path(r'^trainingmanager_payment_list/$',views.trainingmanager_payment_list, name="trainingmanager_payment_list"),
+
+
+pdf 
+
+re_path(r'^paypdf/(?P<id>\d+)/(?P<tid>\d+)/$', views.paypdf,name="paypdf"),
+
+
+trainer
+
+re_path(r'^trainer_payment_list/$',views.trainer_payment_list, name="trainer_payment_list"),
+
+
+manager
+
+re_path(r'^MAN_payment_list/$',views.MAN_payment_list, name="MAN_payment_list"),
+
+
+projectmanager
+
+re_path(r'^projectmanager_payment_list/',views.projectmanager_payment_list, name="projectmanager_payment_list"),
