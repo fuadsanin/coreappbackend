@@ -139,7 +139,7 @@ class user_registration(models.Model):
     payment_amount_date =models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
     salary_pending = models.CharField(max_length=100, default='')
     salary_status =  models.CharField(max_length=10, default='')
-    trainer_level = models.CharField(max_length=20, default='')
+    trainer_level = models.CharField(max_length=20, default='',null=True, blank=True)
    
     def __str__(self):
         return self.fullname
@@ -262,7 +262,9 @@ class project_taskassign(models.Model):
     projectstatus = models.CharField(max_length=200, null=True, blank=True,default="In progress")
     status = models.CharField(max_length=200, null=True, blank=True)
     delay = models.CharField(max_length=200, null=True,default="")
-    
+    user_id = models.ForeignKey(user_registration, on_delete=models.SET_NULL,
+                             related_name='project_task_user', null=True, blank=True )
+
 
     def __str__(self):
         return self.project.project
@@ -397,11 +399,11 @@ class internship(models.Model):
     status = models.CharField(max_length=200)
     complete_status =models.CharField(max_length=10,default='0')
     verify_status =models.CharField(max_length=10,default='0')
-    total_fee = models.IntegerField(default='')
-    amount = models.IntegerField(default='')
-    pay_date = models.DateField(default='')
-    balence = models.IntegerField(default='')
-    total_pay =models.IntegerField(default='')
+    total_fee = models.IntegerField(default=0)
+    amount = models.IntegerField(default=0)
+    pay_date = models.DateField(null=True, blank=True)
+    balance = models.IntegerField(default=0)
+    total_pay =models.IntegerField(default=0)
     internshiptype = models.ForeignKey(internship_type,on_delete=models.SET_NULL,related_name='internship_type', null=True, blank=True)
     
     def __str__(self):
@@ -494,26 +496,26 @@ class paymentlist(models.Model):
 
 class acntspayslip(models.Model):
 
-    basic_salary = models.IntegerField()
+    basic_salary = models.IntegerField(default='0')
     eno = models.CharField(max_length=100) 
     user_id = models.ForeignKey(user_registration, on_delete=models.SET_NULL, related_name='user',null=True,blank=True)
     designation = models.ForeignKey(designation, on_delete=models.SET_NULL, related_name='desic',null=True,blank=True)
     department =models.ForeignKey(department, on_delete=models.SET_NULL, related_name='dept',null=True,blank=True)
-    hra = models.IntegerField()
+    hra = models.IntegerField(default='0')
     conveyns = models.CharField(max_length=100)
-    tax = models.IntegerField()
-    incentives = models.IntegerField()
+    tax = models.IntegerField(default='0')
+    incentives = models.IntegerField(default='0')
     fromdate = models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
     todate = models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
     taxengine = models.CharField(max_length=100) 
-    incometax = models.IntegerField() 
+    incometax = models.IntegerField(default='0') 
     uan = models.CharField(max_length=100) 
-    pf = models.IntegerField() 
+    pf = models.IntegerField(default='0') 
     esi = models.CharField(max_length=100)  
     pro = models.CharField(max_length=100) 
-    leavesno = models.IntegerField() 
-    pf_tax = models.IntegerField()
-    delay = models.IntegerField()
+    leavesno = models.IntegerField(default='0') 
+    pf_tax = models.IntegerField(default='0')
+    delay = models.IntegerField(default='0')
     basictype =  models.CharField(max_length=255,default='')
     hratype = models.CharField(max_length=255,default='')
     contype = models.CharField(max_length=255,default='')
@@ -523,6 +525,10 @@ class acntspayslip(models.Model):
     leatype = models.CharField(max_length=255,default='')
     pftype =  models.CharField(max_length=255,default='')
     esitype =  models.CharField(max_length=255,default='')
+    # duedate = models.DateField(auto_now_add=False, auto_now=False,  null=True, blank=True)
+    pending_status = models.CharField(max_length=25, default='0')
+
+
 class acntexpensest (models.Model):
     payee =models.CharField(max_length=100)
     payacnt=models.CharField(max_length=200)

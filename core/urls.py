@@ -1170,6 +1170,20 @@ urlpatterns = [
     re_path(r'^trainer_payment_list/$',views.trainer_payment_list, name="trainer_payment_list"),
     re_path(r'^MAN_payment_list/$',views.MAN_payment_list, name="MAN_payment_list"),
     re_path(r'^projectmanager_payment_list/',views.projectmanager_payment_list, name="projectmanager_payment_list"),
+
+    re_path(r'^accounts_internship/', views.accounts_internship, name="accounts_internship"),
+    re_path(r'^accounts_internship_payment_pending/', views.accounts_internship_payment_pending, name="accounts_internship_payment_pending"),
+    re_path(r'^addamount/(?P<id>\d+)/', views.addamount, name="addamount"),
+    re_path(r'^accounts_internship_type_sel/(?P<id>\d+)/', views.accounts_internship_type_sel, name="accounts_internship_type_sel"),
+    re_path(r'^accounts_internship_verify/(?P<id>\d+)/', views.accounts_internship_verify, name="accounts_internship_verify"),
+    re_path(r'^accounts_internship_complete/(?P<id>\d+)/', views.accounts_internship_complete, name="accounts_internship_complete"),
+
+    re_path(r'^accounts_internship_viewall/', views.accounts_internship_viewall, name="accounts_internship_viewall"),
+    re_path(r'^accounts_intrenship_type/$',views.accounts_intrenship_type, name="accounts_intrenship_type"),
+    re_path(r'^accounts_intrenship_add/$',views.accounts_intrenship_add, name="accounts_intrenship_add"),
+    re_path(r'^internshiptypeupdate/(?P<id>\d+)/$',views.internshiptypeupdate,name="internshiptypeupdate"),
+    re_path(r'^internshiptypedelete/(?P<id>\d+)/$',views.internshiptypedelete,name="internshiptypedelete"),
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

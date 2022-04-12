@@ -33,6 +33,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'assets/vendors/chart.js/Chart.min.js'%}"></script>
     <script src="{% static 'assets/vendors/chart.js/Chart.min.js'%}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   </head>
   <style>
@@ -260,5 +261,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- modal js -->
     <script src="{% static 'assets/js/chart.js'%}"></script>
+
+    {% if msg_success %}
+<script>
+    Swal.fire({
+        position: 'center',
+        icon: 'success',
+        text: '{{ msg_success }}',
+        showConfirmButton: false,
+        timer: 1500
+    }).then(function () {
+        javascript: history.go(-2);
+    })
+</script>
+{% endif %}
+{% if msg_warning %}
+<script>
+    Swal.fire({
+        position: 'center',
+        icon: 'warning',
+        text: '{{ msg_warning }}',
+        showConfirmButton: false,
+        timer: 1500
+    }).then(function () {
+        javascript: history.go(-2);
+    })
+</script>
+{% endif %}
+
   </body>
 </html>

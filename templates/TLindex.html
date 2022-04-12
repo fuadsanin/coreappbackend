@@ -31,6 +31,7 @@
     <link rel="shortcut icon" href="{% static '/assets/images/favicon.png' %}" />
     <script src="{% static 'assets/vendors/chart.js/Chart.min.js'%}"></script>
     <script src="{% static 'assets/vendors/chart.js/Chart.min.js'%}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <style>
     @media (max-width:992px){
@@ -450,6 +451,32 @@
     <script src="{% static '/assets/js/dashboard.js' %}"></script>
     <!-- End custom js for this page -->
     <script src="{% static '/assets/js/chart.js'%}"></script>
-  
+    {% if msg_success %}
+    <script>
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            text: '{{ msg_success }}',
+            showConfirmButton: false,
+            timer: 1500
+        }).then(function () {
+            javascript: history.go(-2);
+        })
+    </script>
+    {% endif %}
+    {% if msg_warning %}
+    <script>
+        Swal.fire({
+            position: 'center',
+            icon: 'warning',
+            text: '{{ msg_warning }}',
+            showConfirmButton: false,
+            timer: 1500
+        }).then(function () {
+            javascript: history.go(-2);
+        })
+    </script>
+    {% endif %}
+    
   </body>
 </html>

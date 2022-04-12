@@ -1,44 +1,30 @@
 import math
-from num2words import num2words
-from calendar import day_abbr
-from lib2to3.pgen2.pgen import DFAState
-from numpy import extract
-import qrcode
-import random
 import os
-from django.contrib.auth import authenticate, login, logout
-from django.urls import reverse
-from urllib.parse import urlencode
-from django.views.decorators.csrf import csrf_exempt
-from django. contrib import messages
-from unicodedata import name
-from django.shortcuts import render
-from django.shortcuts import render, redirect
-from base_app.models import *
-from datetime import datetime, date
-from django.http import HttpResponse, HttpResponseRedirect
-from django.db.models import Q
+import random
+from calendar import day_abbr
+from datetime import date, datetime
 from io import BytesIO
-from django.core.files import File
+from lib2to3.pgen2.pgen import DFAState
+from unicodedata import name
+from urllib.parse import urlencode
+
+import qrcode
 from django.conf import settings
-from django.db.models import Q
-
-from django.core.mail import send_mail
-
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.core.files import File
 from django.core.files.storage import FileSystemStorage
-# import qrcode.image.svg
-# from io import BytesIO
-# from django.views.generic import View
-# # from xhtml2pdf import pisa
-# # from coreapp.utils import render_to_pdf ,get_template
-# from django.db.models import Q
-# import os
-
-from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.template.loader import get_template
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from num2words import num2words
 from xhtml2pdf import pisa
 
-# Create your views here.
+from base_app.models import *
 
 
 def login(request):
@@ -1589,34 +1575,7 @@ def trainer_reportissue(request):
     else:
         return redirect('/')
 
-# def trainer_reportissue_form(request):
-#     if request.session.has_key('usernametrnr'):
-#         usernametrnr = request.session['usernametrnr']
-#     if request.session.has_key('usernametrnr1'):
-#         usernametrnr1 = request.session['usernametrnr1']
-#     if request.session.has_key('usernametrnr2'):
-#         usernametrnr2 = request.session['usernametrnr2']
-#     else:
-#         return redirect('/')
-#     z = user_registration.objects.filter(designation_id=usernametrnr) .filter(
-#         fullname=usernametrnr1) .filter(id=usernametrnr2)
 
-#     mem = reported_issue()
-#     des = designation.objects.get(designation='trainingmanager')
-#     cut = user_registration.objects.get(designation_id=des.id)
-#     mem1 = user_registration.objects.get(id=usernametrnr2)
-#     des1 = designation.objects.get(designation='trainer')
-#     print(mem1)
-#     if request.method == "POST":
-#         mem.issue = request.POST['issues']
-#         mem.reported_date = datetime.now()
-#         mem.reported_to = cut
-#         mem.reporter = mem1
-#         mem.designation_id = des1.id
-#         mem.issuestatus =0
-#         mem.save()
-#         return render(request, 'trainer_reportissue.html', {'z': z})
-#     return render(request, 'trainer_reportissue_form.html', {'mem': mem, 'z': z})
 
 
 def trainer_reportissue_form(request):
@@ -2283,8 +2242,6 @@ def trainer_current_trainees(request):
         return render(request, 'trainer_current_trainees.html', {'z': z, 'n': user})
     else:
         return redirect('/')
-################################   NEW    ####################################
-
 
 def trainer_paymentlist(request):
     if 'usernametrnr2' in request.session:
@@ -3446,7 +3403,9 @@ def BRadmin_Training(request, id):
         else:
             return redirect('/')
         Adm = user_registration.objects.filter(id=Adm_id)
-        
+        # team=create_team.objects.filter(user_id=id)
+        # return render(request,'BRadmin_Training.html',{'team':team})
+        # team=create_team.objects.all()
         user = user_registration.objects.filter(id=id)
         team = create_team.objects.all()
         return render(request, 'BRadmin_Training.html', {'team': team, 'user': user, 'Adm': Adm})
@@ -5900,7 +5859,7 @@ def projectmanager_assignproject(request):
         if request.method == 'POST':
 
             var = project_taskassign()
-            # print("hii")
+           
             var.user_id = prid
             var.tl_id = request.POST['pname']
             var.task = request.POST['task']
@@ -6759,38 +6718,42 @@ def TLdashboard(request):
         dev = user_registration.objects.filter(tl_id=tlid)
         ids = dev.values_list('id', flat="true")
         des = designation.objects.get(designation="developer")
-        le = leave.objects.filter(user_id__in=ids.all(
-        ), designation_id=des.id, leaveapprovedstatus=0)
+        le = leave.objects.filter(user_id__in=ids.all(),designation_id=des.id,leaveapprovedstatus=0)
+        cs=user_registration.objects.get(id=tlid)
+        csy=int(cs.confirm_salary)
+        year = date.today().year
+        month = date.today().month
+        wd =acnt_monthdays.objects.get(month_fromdate__year__gte=year,
+                                          month_fromdate__month__gte=month,
+                                          month_todate__year__lte=year,
+                                          month_todate__month__lte=month)
 
-        # val=user_registration.objects.get(id=tlid)
-        # cv=int(val.confirm_salary)
-        # # days=acnt_monthdays.objects.latest('id')
-        # # tday=days.month_workingdays
-        # # salary_day = cv/tday
-        # year = date.today().year
-        # month=date.today().month
+        wds=wd.month_workingdays
+        perday=csy/wds
+        delays = project_taskassign.objects.filter(user_id=tlid,startdate__year__gte=year,
+                                          startdate__month__gte=month,
+                                          submitted_date__year__lte=year,
+                                          submitted_date__month__lte=month)
+        mm = delays.values_list('delay', flat='true')
+        a=0
+        for i in mm:
+            
+           a=a+int(i)
 
-        # days = acnt_monthdays.objects.get(month_fromdate__year__gte=year,
-        #             month_fromdate__month__gte=month,
-        #             month_todate__year__lte=year,
-        #             month_todate__month__lte=month)
-        # tdays=days.month_workingdays
-        # tholi=days.month_holidays
-        # salary_day = cv/tdays
-        # les=acntspayslip.objects.get(user_id=tlid)
-        # leno=les.leavesno
-        # mm=tholi-leno
-        # bb=tdays-mm
-
-        # lesalary=leno*salary_day
-        # to_salary=math.ceil(cv-lesalary)
-
+        desal=a*perday
+        salary=math.ceil(csy-desal)
+    
+        css=user_registration.objects.get(id=tlid)
+        css.salary_pending=salary
+        css.salary_status=0
+        css.save()
         for i in queryset:
             labels = [i.workperformance, i.attitude, i.creativity]
             data = [i.workperformance, i.attitude, i.creativity]
-        return render(request, 'TLdashboard.html', {'labels': labels, 'data': data, 'mem': mem, 'le': le})
+        return render(request, 'TLdashboard.html', {'labels': labels, 'data': data, 'mem': mem, 'le': le,'salary':salary})
     else:
         return redirect('/')
+
 
 
 def tldevview(request, id):
@@ -7510,10 +7473,40 @@ def devdashboard(request):
     labels = []
     data = []
     queryset = user_registration.objects.filter(id=devid)
+    cs=user_registration.objects.get(id=devid)
+    csy=int(cs.confirm_salary)
+    year = date.today().year
+    month = date.today().month
+    wd =acnt_monthdays.objects.get(month_fromdate__year__gte=year,
+                                   month_fromdate__month__gte=month,
+                                   month_todate__year__lte=year,
+                                   month_todate__month__lte=month)
+
+    wds=wd.month_workingdays
+    perday=csy/wds
+    print('haii')
+    delays = project_taskassign.objects.filter(user_id=devid,startdate__year__gte=year,
+                                          startdate__month__gte=month,
+                                          submitted_date__year__lte=year,
+                                          submitted_date__month__lte=month)
+    mm = delays.values_list('delay', flat='true')
+    a=0
+    for i in mm:
+            
+        a=a+int(i)
+
+    desal=a*perday
+    salary=math.ceil(csy-desal)
+    css=user_registration.objects.get(id=devid)
+    css.salary_pending=salary
+    css.salary_status=0
+    css.save()
+
     for i in queryset:
         labels = [i.workperformance, i.attitude, i.creativity]
         data = [i.workperformance, i.attitude, i.creativity]
-    return render(request, 'devdashboard.html', {'labels': labels, 'data': data, 'dev': dev})
+   
+    return render(request, 'devdashboard.html', {'labels': labels, 'data': data, 'dev': dev,'salary':salary})
 
 
 def devReportedissues(request):
@@ -10738,17 +10731,17 @@ def BRadmin_rejectedstatus(request, id):
     else:
         return redirect('/')
 
-
 def accounts_account_salary(request):
     if 'usernameacnt2' in request.session:
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        z = user_registration.objects.filter(id=usernameacnt2)
-        user = user_registration.objects.get(id=usernameacnt2)
-        acc = acntspayslip.objects.get(user_id=user)
-        return render(request, 'accounts_account_salary.html', {'acc': acc, 'user': user, 'z': z})
+        z = user_registration.objects.filter(id=usernameacnt2)          
+        mem1 = user_registration.objects.get(id=usernameacnt2)
+        var = acntspayslip.objects.filter(user_id=usernameacnt2)
+        return render(request, 'accounts_account_salary.html', {'z': z,'mem1': mem1, 'var': var })
     else:
         return redirect('/')
+
 
 
 def accounts_accout_salary_slip(request, id):
@@ -10977,7 +10970,6 @@ def accounts_designation(request):
     else:
         return redirect('/')
 
-
 @csrf_exempt
 def accounts_emp_ajax(request):
     if 'usernameacnt2' in request.session:
@@ -10994,16 +10986,40 @@ def accounts_emp_ajax(request):
     else:
         return redirect('/')
 
-@csrf_exempt
+# @csrf_exempt
+# def accounts_project_details(request):
+#     if 'usernameacnt2' in request.session:
+#         emp = request.POST['emp']
+#         names = user_registration.objects.get(id=emp) 
+
+#         year = date.today().year
+#         month = date.today().month
+
+#         leave = project_taskassign.objects.filter(tl_id=emp,startdate__year__gte=year,
+#                                           startdate__month__gte=month,
+#                                           submitted_date__year__lte=year,
+#                                           submitted_date__month__lte=month)
+#         mm = leave.values_list('delay', flat='true')
+#         a=0
+#         for i in mm:
+            
+#             a=a+int(i)
+#         print(emp)
+#         return render(request,'accounts_project_details.html', {'names':names,'mm':mm,'a':a})
+#     else:
+#         return redirect('/')
+
 def accounts_project_details(request):
     if 'usernameacnt2' in request.session:
         emp = request.POST['emp']
-        names = user_registration.objects.get(id=emp) 
+        fdate = request.POST['fdate']
+        tdate = request.POST['tdate']
+        names = project_taskassign.objects.filter(user_id=emp,startdate__gte=fdate, enddate__lte=tdate) 
 
         year = date.today().year
         month = date.today().month
 
-        leave = project_taskassign.objects.filter(tl_id=emp,startdate__year__gte=year,
+        leave = project_taskassign.objects.filter(user_id=emp,startdate__year__gte=year,
                                           startdate__month__gte=month,
                                           submitted_date__year__lte=year,
                                           submitted_date__month__lte=month)
@@ -11013,7 +11029,11 @@ def accounts_project_details(request):
             
             a=a+int(i)
         print(emp)
-        return render(request,'accounts_project_details.html', {'names':names,'mm':mm,'a':a})
+        print(fdate)
+        print(tdate)
+        print(names)
+
+        return render(request,'accounts_project_details.html', {'names':names,'mm':mm,'a':a ,})
     else:
         return redirect('/')
 
@@ -11037,11 +11057,6 @@ def accounts_add_bank_acnt_update(request,id):
     else:
         
         return render(request,'accounts_add_bank_acnt_update.html',{'mem1':mem1,'z': z})
-
-
-
-
-
 
 def DEVpayments(request):
     if request.session.has_key('devid'):
@@ -11120,9 +11135,10 @@ def paypdf(request,id,tid):
    
     
     print(v)
-    conf = abc-c
-    words = num2words(conf)
+    
     add = acc.basic_salary+ int(acc.conveyns)+acc.hra+acc.pf_tax+acc.pf+int(acc.esi)+acc.delay+acc.leavesno+acc.incentives
+    conf = add-c
+    words = num2words(conf)
     template_path = 'paypdf.html'
     context = {'acc':acc, 'user':user,'c':c,'mm':mm,'mam':mam,'conf':conf,'words':words, 'add':add,
     'media_url':settings.MEDIA_URL,
@@ -11168,5 +11184,176 @@ def trainer_payment_list(request):
     
         var = acntspayslip.objects.filter(user_id = usernametrnr2)
         return render(request, 'trainer_payment_list.html', {'z': z, 'var': var })
+    else:
+        return redirect('/')
+
+def TSpayment(request):
+    if 'usernametsid' in request.session:
+        if request.session.has_key('usernamets'):
+            usernamets = request.session['usernamets']
+        if request.session.has_key('usernametsid'):
+            usernametsid = request.session['usernametsid']
+        else:
+            usernamets1 = "dummy"
+        mem=user_registration.objects.filter(designation_id=usernamets).filter(id=usernametsid)
+        mem1 = user_registration.objects.get(id=usernametsid)
+        var = acntspayslip.objects.filter(user_id = usernametsid)
+        return render(request, 'TSpayment.html', {'mem': mem,'mem1': mem1, 'var': var })
+    else:
+        return redirect('/')
+def accounts_internship(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+   
+    return render(request, 'accounts_internship.html', {'z': z})
+
+def accounts_internship_payment_pending(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+    data=internship.objects.filter(complete_status='0')
+    use=internship_type.objects.all()
+   
+    return render(request,'internship_payment_pending.html', {'z': z,'data': data,'use': use})
+
+def accounts_internship_type_sel(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+    data=internship.objects.all()
+    ab=internship.objects.get(id=id)
+    ab.internshiptype_id=request.POST['inter']    
+    use=internship_type.objects.get(id=int(request.POST['inter']))
+    ab.total_fee=use.fee
+    ab.save()
+    msg_success = "Add Succesfully"
+   
+   
+    return render(request, 'internship_payment_pending.html', {'z': z,'data': data,'msg_success': msg_success})
+
+def addamount(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        if request.method == "POST":
+            
+            abc = internship.objects.get(id=id)
+           
+            abc.pay_date = request.POST['date']
+            abc.amount = request.POST['amount']
+            abc.total_pay= int(request.POST['amount'])+abc.total_pay
+            abc.balance = abc.total_fee - abc.total_pay
+
+            abc.save()
+            abcd = internship_paydata()
+            abcd.internship_user=abc
+            abcd.date = request.POST['date']
+            abcd.amount = request.POST['amount']
+            abcd.save()
+            msg_success = "Add Succesfully"
+            return render(request, 'internship_payment_pending.html', {'z': z,'msg_success': msg_success})
+        return render(request, 'internship_payment_pending.html', {'z': z,})
+    else:
+        return redirect('/')
+    
+def accounts_internship_verify(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+    data=internship.objects.get(id=id)
+    data.verify_status=1
+    data.save()
+    msg_success = "Verifyed Succesfully"
+    return render(request, 'internship_payment_pending.html', {'z': z,'msg_success': msg_success})
+
+def accounts_internship_complete(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+    data=internship.objects.get(id=id)
+    data.complete_status=1
+    data.save()
+    msg_success = "Verifyed Succesfully"
+    return render(request, 'internship_payment_pending.html', {'z': z,'msg_success': msg_success})
+
+def accounts_internship_viewall(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+    data=internship.objects.filter(complete_status='1')
+    use=internship_type.objects.all()
+   
+    return render(request, 'accounts_internship_viewall.html', {'z': z,'data': data,'use': use})
+   
+    
+
+
+#########################   jishnu   ##############################
+
+def accounts_intrenship_type(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        mem = internship_type.objects.all()
+        
+    return render(request, 'accounts_intrenship_type.html', {'z': z,'mem':mem,})
+
+def accounts_intrenship_add(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+
+        if request.method == 'POST':
+            vars = internship_type()
+            vars.type = request.POST['type']
+            vars.duration = request.POST['duration']
+            vars.fee = request.POST['fees']
+            vars.save()
+            msg_success = "Add Succesfully"
+            return render(request, 'accounts_intrenship_add.html', {'z': z,'msg_success':msg_success})
+
+    return render(request, 'accounts_intrenship_add.html', {'z': z,})
+
+def internshiptypeupdate(request, id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        if request.method == "POST":
+            vars = internship_type.objects.get(id=id)
+            vars.type = request.POST['types']
+            vars.duration = request.POST['durations']
+            vars.fee = request.POST['fees']
+            vars.save()
+            msg_success = "Updated Succesfully"
+            return render(request, 'accounts_intrenship_type.html', {'z': z, 'msg_success':msg_success })
+        return render(request, 'accounts_intrenship_type.html', {'z': z, })
+    else:
+        return redirect('/')
+
+def internshiptypedelete(request, id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        vars = internship_type.objects.get(id=id)
+        vars.delete()
+        msg_success = "Deleted Succesfully"
+        return render(request, 'accounts_intrenship_type.html', {'z': z, 'msg_success':msg_success })
     else:
         return redirect('/')
