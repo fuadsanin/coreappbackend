@@ -70,7 +70,7 @@
 
 <label id="myprofile">Registration Update</label>
 <hr>
-<form action="{% url 'registrationupdatesave' mem4.id %}" autocomplete="off" method="post">
+<form action="{% url 'registrationupdatesave' mem4.id %}" autocomplete="off" method="post" enctype="multipart/form-data"> 
     {% csrf_token %}
     <div class="container">
         <div class="row">
@@ -105,15 +105,23 @@
                 <input type="text" class="form-control" name="certificateadddesignation" autocomplete="off" value=""><br>-->
                 <label id="form-label">Designation:</label>
                 <select class="form-control" id="regdetailsdept" style="color:white;" name="designation" required>
-                                 <option selected hidden value="{{mem4.designation_id}}">{{mem4.designation}}</option>
-        {% for i in des %}
-                                <option value="{{i.id}}">{{i.designation}}</option>
-                               
-
-                                {% endfor %}
-                              </select><br>
+                    <option selected hidden value="{{mem4.designation_id}}">{{mem4.designation}}</option>
+                        {% for i in des %}
+                        <option value="{{i.id}}">{{i.designation}}</option>
+                        {% endfor %}
+                </select><br>
                 <label id="form-label">Trainer:</label>
                 <input type="text" class="form-control" name="trainer" autocomplete="off" value="{{mem4.trainer}}"><br>
+                <label>File Upload</label>
+                <input type="file" name="signature" class="form-control card-title col-12" style='color:white !important'><br>
+                <label id="form-label">Designation:</label>
+                <select class="form-control" id="regdetailsdept" style="color:white;" name="hrdesignation" required>
+                    <option selected hidden value="">{{Adm.designation}}</option>
+                        {% for i in desig %}
+                        <option value="{{i.id}}">{{i.designation}}</option>
+                        {% endfor %}
+                </select><br>
+
                 <label id="form-label">Hr Manager:</label>
               
                 {% if mem4.hrmanager %}

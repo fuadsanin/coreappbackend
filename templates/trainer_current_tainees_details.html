@@ -144,10 +144,8 @@
             </div>
         </div>
 
-
-        <!--End Chart Html-->
-
-        <div class="row" style="padding-top:20px;">
+<!--End Chart Html-->
+<div class="row" style="padding-top:20px;">
             <div class="col-12 col-sm-6 col-md-6 col-lg-6 grid-margin">
                 <a href="{% url 'trainer_current_attendance' mem.id %}" style="text-decoration:none;">
                     <div class="card" style="height: 200px">
@@ -185,9 +183,27 @@
                     </div>
                 </a>
             </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 grid-margin">
+                <a href="{% url 'trainer_currentprogress' mem.id  %}" style="text-decoration:none;">
+                    <div class="card" style="height: 200px">
+                        <div class="card-body">
+                            <div class="row" style="padding-top:25px;">
+                                <div class="col-8 col-sm-12 col-md-8 col-lg-8 my-auto">
+                                    <div class="d-flex d-sm-block d-md-flex align-items-center">
+                                        <h3 class="mb-0" style="color:white;">Progress</h3>
+                                    </div>
+                                </div>
+                                <div class="col-4 col-sm-12 col-md-4 col-lg-4 text-center text-xl-right">
+                                    <i class="icon-lg mdi mdi-bible text-warning ms-auto"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
 
-    </div>
+    
 
     <script>
 

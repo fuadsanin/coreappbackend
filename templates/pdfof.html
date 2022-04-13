@@ -123,12 +123,11 @@
 
 
     <p style="padding-top:-60px">
-        {% if mem.hrmanager %}
-        {{mem.hrmanager}}
-        {% else %}
-        {{br_admin.branch_admin}}
-        {% endif %}
-        <br> HR Manager</p><p style="text-align:right;padding-top:-30px">{{mem.fullname}}</p>
+        <img src="{{mem.signature.url}}" style="height:70px;width: 100px; padding-left:30px;">
+
+       <br> {{mem.hrmanager}}
+       
+        <br> {{mem.hr_designation}} </p><p style="text-align:right;padding-top:-30px">{{mem.fullname}}</p>
 
 
 

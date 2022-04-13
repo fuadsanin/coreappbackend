@@ -1,4 +1,4 @@
-{% extends 'index_accounts.html' %}
+{% extends 'BRadmin_index.html' %}
 {% load static %}
 {% block content %}
 <body>
@@ -39,13 +39,10 @@ table tr[data-href] {
               
                 <tr data-href="#">
                   <th style="padding-left:30px;"> Name </th>
-                  <th style="padding-left:55px;"> Email</th>
+                  <th style="padding-left:35px;"> Email</th>
                   <th style="padding-left:15px;"> Balance </th> 
                   <th style="padding-left:10px;"> Internship Type </th>
-                  <th style="padding-left:25px;"> Submit </th>
-                  <th style="padding-left:15px;"> Payment </th>
-                  <th style="padding-left:15px;"> Internship Verify </th>
-                  <th style="padding-left:25px;"> Complete </th>
+                  
                   
                   
                 </tr>
@@ -60,38 +57,10 @@ table tr[data-href] {
                      <span class="ps-2">{{t.fullname}}</span>
                   </td>
                   <td> {{t.email}}</td>
-                  <td style="padding-left:35px;">{{t.balance}}</td>
-                  <form action="{% url 'accounts_internship_type_sel' t.id%}" method="post">
-                    {% csrf_token%}
-                  <td>
-                    <select class="badge badge-outline-primary bg-dark text-light"name="inter" required>
-                      <option style="display: none" >{{t.internshiptype.type}}</option>
-                      <option style="display: none" >Internship Type</option>
-                      {%for i in use%}
-                     
-                      
-                      
-
-                      <option value="{{i.id}}">{{i.type}}</option>
-                      {%endfor%}
-                    </select>
-                  </td>
-                
-                    <td>
-                        <button type="submit" class="btn btn-outline-primary btn-icon-text" >Submit</button>
-                    </td>
-                  </form>
-                    <td>
-                        
-                        <button type="button" data-toggle="modal" data-target="#myModal{{t.id}}" class="btn btn-social-icon-text btn-outline-primary"><i class="mdi mdi-currency-inr"></i>Payment</button>
-                    </td>
-                    <td>
-                        <a href="{% url 'accounts_internship_verify' t.id %}"  class="btn btn-outline-primary btn-icon-text" >Internship Verify</a>
-                    </td>
-                    <td>
-                        <a href="{% url 'accounts_internship_complete' t.id%}"  class="btn btn-outline-primary btn-icon-text" >Complete</a>
-                    </td>
+                  <td >{{t.balance}}</td>
+                  <td>{{t.internshiptype.type}}</td>
                   
+                    
                   
                 {% endfor %}
 

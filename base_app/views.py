@@ -3437,12 +3437,12 @@ def BRadmin_traineestable(request, id):
         else:
             return redirect('/')
         Adm = user_registration.objects.filter(id=Adm_id)
-        Trainee = designation.objects.get(designation='Trainee')
-        trainees_data = user_registration.objects.filter(
-            designation=Trainee).filter(team=id)
+        trainees_data = previousTeam.objects.filter(teamname=id).order_by('-id')
+        print(trainees_data)
         return render(request, 'BRadmin_traineestable.html', {'trainees_data': trainees_data, 'Adm': Adm})
     else:
         return redirect('/')
+
 
 
 def BRadmin_trainingprofile(request, id):
@@ -5860,7 +5860,7 @@ def projectmanager_assignproject(request):
 
             var = project_taskassign()
            
-            var.user_id = prid
+            # var.user_id = prid
             var.tl_id = request.POST['pname']
             var.task = request.POST['task']
             var.description = request.POST.get('desc')
@@ -6704,7 +6704,6 @@ def projectMANreportedissues(request):
 # -------------------------------------------------------------------------------------------------------------------------------------
 
 # TL module
-
 def TLdashboard(request):
     if 'tlid' in request.session:
         if request.session.has_key('tlid'):
@@ -6730,7 +6729,7 @@ def TLdashboard(request):
 
         wds=wd.month_workingdays
         perday=csy/wds
-        delays = project_taskassign.objects.filter(user_id=tlid,startdate__year__gte=year,
+        delays = project_taskassign.objects.filter(developer=tlid,startdate__year__gte=year,
                                           startdate__month__gte=month,
                                           submitted_date__year__lte=year,
                                           submitted_date__month__lte=month)
@@ -7463,7 +7462,6 @@ def devindex(request):
     dev = user_registration.objects.filter(id=devid)
     return render(request, 'devindex.html', {'dev': dev})
 
-
 def devdashboard(request):
     if request.session.has_key('devid'):
         devid = request.session['devid']
@@ -7485,7 +7483,7 @@ def devdashboard(request):
     wds=wd.month_workingdays
     perday=csy/wds
     print('haii')
-    delays = project_taskassign.objects.filter(user_id=devid,startdate__year__gte=year,
+    delays = project_taskassign.objects.filter(developer=devid,startdate__year__gte=year,
                                           startdate__month__gte=month,
                                           submitted_date__year__lte=year,
                                           submitted_date__month__lte=month)
@@ -8140,11 +8138,11 @@ def BRadmin_registration(request):
         user.save()
         return redirect("BRadmin_registration")
     Adm = user_registration.objects.filter(id=Adm_id)
-    mem1 = user_registration.objects.filter(
-        ~Q(status="resigned")).order_by("-id")
+    mem1 = user_registration.objects.filter(~Q(status="resigned"),reg_status=1).order_by("-id")
     mem2 = designation.objects.filter(~Q(designation="admin"))
     mem3 = department.objects.all()
     return render(request, 'BRadmin_registration.html', {'mem3': mem3, 'mem2': mem2, 'Adm': Adm, 'mem1': mem1})
+
 
 
 def BRadmin_resign(request):
@@ -8200,24 +8198,19 @@ def registrationupdatesave(request, id):
         a.fullname = request.POST['name']
         a.fathername = request.POST['fathersname']
         a.mothername = request.POST['mothersname']
-        #a.dateofbirth = request.POST['dob']
-        #a.gender = request.POST['gender']
         a.presentaddress1 = request.POST['presentaddress1']
         a.presentaddress2 = request.POST['presentaddress2']
         a.presentaddress3 = request.POST['presentaddress3']
         a.pincode = request.POST['pincode']
         a.district = request.POST['district']
         a.state = request.POST['state']
-        # a.country  =  request.POST['country']
         a.permanentaddress1 = request.POST['permanentaddress1']
         a.permanentaddress2 = request.POST['permanentaddress2']
         a.permanentaddress3 = request.POST['permanentaddress3']
         a.permanentpincode = request.POST['permanentpincode']
         a.permanentdistrict = request.POST['permanentdistrict']
         a.permanentstate = request.POST['permanentstate']
-
         a.designation_id = request.POST['designation']
-        #a.permanentcountry =  request.POST['pcountry']
         a.mobile = request.POST['mobile']
         a.alternativeno = request.POST['altmobile1']
         a.email = request.POST['email']
@@ -8226,33 +8219,17 @@ def registrationupdatesave(request, id):
         a.startdate = request.POST['startdate']
         a.enddate = request.POST['enddate']
         a.workperformance = request.POST['performance']
-        # a.password= random.SystemRandom().randint(100000, 999999)
-        #a.branch_id = request.POST['branch']
-        #a.photo = request.FILES['photo']
-        #a.idproof = request.FILES['idproof']
+        a.hr_designation_id = request.POST['hrdesignation']
+        a.signature = request.FILES['signature']
         a.save()
-        # x = user_registration.objects.get(id=a.id)
-        # today = date.today()
-        # mon = datetime( today.month)
-        # yr = datetime(today.year)
-        # tim = str(mon)+''+str(yr)
-        # today = date.today()
-        # tim = today.strftime("%m%y")
-
-        # x.employee_id = "INF"+str(tim)+''+"B"+str(x.id)
-        # x.save()
 
         b.user_id = a.id
-        #b.plustwo = request.POST.get('school')
         b.school = request.POST['school']
         b.schoolaggregate = request.POST['aggregate']
-        #b.schoolcertificate = request.FILES['cupload']
         b.ugdegree = request.POST['degree']
         b.ugstream = request.POST['stream']
         b.ugpassoutyr = request.POST['passoutyear']
         b.ugaggregrate = request.POST['aggregate1']
-        #b.backlogs = request.POST['supply']
-        #b.ugcertificate = request.FILES['cupload1']
         b.pg = request.POST['pg']
         b.save()
 
@@ -10941,7 +10918,7 @@ def test(request, id):
 
     return render(request, 'accounts_download_promissory.html', {'z': z, 'user': user, 'c': c, 'msg_success': msg_success, })
 
-
+@csrf_exempt
 def accounts_workstatus(request):
     if 'usernameacnt2' in request.session:
         if request.session.has_key('usernameacnt2'):
@@ -10964,7 +10941,7 @@ def accounts_designation(request):
         z = user_registration.objects.filter(id=usernameacnt2)
 
         dept_id = request.GET.get('dept_id')
-        Desig = designation.objects.filter(department = dept_id).exclude(designation = 'admin').exclude(designation ='manager').exclude(designation ='trainee').exclude(designation ='project manager').exclude(designation ='tester').exclude(designation ='trainingmanager').exclude(designation ='account').exclude(designation ='trainer')
+        Desig = designation.objects.filter(department = dept_id).exclude(designation = 'HR manager').exclude(designation = 'HR').exclude(designation = 'admin').exclude(designation ='manager').exclude(designation ='trainee').exclude(designation ='project manager').exclude(designation ='tester').exclude(designation ='trainingmanager').exclude(designation ='account').exclude(designation ='trainer')
        
         return render(request,'accounts_designation.html',{'z':z,'Desig': Desig, })
     else:
@@ -11008,18 +10985,18 @@ def accounts_emp_ajax(request):
 #         return render(request,'accounts_project_details.html', {'names':names,'mm':mm,'a':a})
 #     else:
 #         return redirect('/')
-
+@csrf_exempt
 def accounts_project_details(request):
     if 'usernameacnt2' in request.session:
         emp = request.POST['emp']
         fdate = request.POST['fdate']
         tdate = request.POST['tdate']
-        names = project_taskassign.objects.filter(user_id=emp,startdate__gte=fdate, enddate__lte=tdate) 
+        names = project_taskassign.objects.filter(developer=emp,startdate__gte=fdate, enddate__lte=tdate) 
 
         year = date.today().year
         month = date.today().month
 
-        leave = project_taskassign.objects.filter(user_id=emp,startdate__year__gte=year,
+        leave = project_taskassign.objects.filter(developer=emp,startdate__year__gte=year,
                                           startdate__month__gte=month,
                                           submitted_date__year__lte=year,
                                           submitted_date__month__lte=month)
@@ -11357,3 +11334,417 @@ def internshiptypedelete(request, id):
         return render(request, 'accounts_intrenship_type.html', {'z': z, 'msg_success':msg_success })
     else:
         return redirect('/')
+
+def trainer_currentprogress(request,id):
+    if 'usernametrnr2' in request.session:
+        if request.session.has_key('usernametrnr2'):
+            usernametrnr2 = request.session['usernametrnr2']
+        z = user_registration.objects.filter(id=usernametrnr2)
+        var = user_registration.objects.get(id=id)
+       
+        if request.method == 'POST':
+            mm = previousTeam.objects.get(user=id,teamname=var.team_id)
+            print(mm.user)
+            mm.progress = request.POST['sele1']
+            mm.save()
+            
+            msg_success = "Progress submitted"
+            return render(request, 'trainer_currentprogress.html', {'z': z,'msg_success':msg_success,'var':var})
+        return render(request, 'trainer_currentprogress.html', {'z': z,'var':var})
+    else:
+        return render('/')
+
+
+
+def BRadmin_new_registration(request):
+    if request.session.has_key('Adm_id'):
+        Adm_id = request.session['Adm_id']
+    else:
+        return redirect('/')
+    if request.method == "POST":
+        u_id = request.POST.get("id")
+        dept_id = request.POST.get("dept")
+        desi_id = request.POST.get("des")
+        res = request.POST.get("stat")
+
+        user = user_registration.objects.get(id=u_id)
+        user.department_id = dept_id
+        user.status = res
+        user.designation_id = desi_id
+        user.save()
+        return redirect("BRadmin_new_registration")
+    Adm = user_registration.objects.filter(id=Adm_id)
+    mem1 = user_registration.objects.filter(~Q(status="resigned"),reg_status=0).order_by("-id")
+    mem2 = designation.objects.filter(~Q(designation="admin"))
+    mem3 = department.objects.all()
+    return render(request, 'BRadmin_new_registration.html', {'mem3': mem3, 'mem2': mem2, 'Adm': Adm, 'mem1': mem1})
+
+
+def registrationstatus(request, id):
+    man = user_registration.objects.get(id=id)
+    man.reg_status = "1"    
+    man.save()
+    return redirect('BRadmin_new_registration')
+
+def BRadmin_internship_pending(request):
+    if request.session.has_key('Adm_id'):
+        Adm_id = request.session['Adm_id']
+    else:
+        return redirect('/')
+    Adm = user_registration.objects.filter(id=Adm_id)
+
+    data=internship.objects.filter(complete_status='0')
+    use=internship_type.objects.all()
+   
+    return render(request, 'BRadmin_internship_pending.html', {'data': data,'use': use,'Adm':Adm})
+
+def BRadmin_internship_acc_approved(request):
+    if request.session.has_key('Adm_id'):
+        Adm_id = request.session['Adm_id']
+    else:
+        return redirect('/')
+    Adm = user_registration.objects.filter(id=Adm_id)
+    data=internship.objects.filter(verify_status='1')
+    use=internship_type.objects.all()
+
+    return render(request, 'BRadmin_internship_acc_approved.html', {'data': data ,'use':use, 'Adm':Adm})
+
+
+
+def BRadmin_accounts(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        return render(request, 'BRadmin_accounts.html', {'Adm': Adm})
+    else:
+        return redirect('/')
+
+def BRadmin_accounts_traineepayment_notverified(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
+        return render(request,'BRadmin_accounts_traineepayment_notverified.html', { 'Adm': Adm, 'deta':deta})
+    else:
+        return redirect('/')
+
+def BRadmin_accounts_traineepayment_pending(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
+        return render(request,'BRadmin_accounts_traineepayment_pending.html', { 'Adm': Adm, 'deta': deta })
+    else:
+        return redirect('/')
+
+def BRadmin_accounts_newtrainees(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        des = designation.objects.get(designation='trainee')
+        deta = user_registration.objects.filter(designation=des.id)
+        return render(request,'BRadmin_accounts_newtrainees.html', { 'Adm': Adm, 'deta':deta })
+    else:
+        return redirect('/')
+
+def BRadmin_accounts_salaried_employees(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        vars = user_registration.objects.filter(confirm_salary_status=1).order_by("-id")
+        return render(request,'BRadmin_accounts_salaried_employees.html', {'Adm': Adm,'vars':vars})
+    else:
+        return redirect('/')
+
+def BRadmin_accounts_salary_employees(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        des2 = designation.objects.get(designation='trainee')
+        Adm1 = designation.objects.get(designation="Admin")
+        vars = user_registration.objects.exclude(designation=des2.id).exclude(designation=Adm1.id).order_by("-id")
+        return render(request,'BRadmin_accounts_salary_employees.html', {'Adm': Adm,'vars':vars})
+    else:
+        return redirect('/')   
+
+def BRadmin_accounts_internship(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+   
+        return render(request, 'BRadmin_accounts_internship.html', {'Adm': Adm})
+    else:
+        return redirect('/')   
+
+
+def BRadmin_accounts_internship_viewall(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+
+        data=internship.objects.filter(complete_status='1')
+        use=internship_type.objects.all()
+    
+        return render(request, 'BRadmin_accounts_internship_viewall.html', {'Adm': Adm,'data': data,'use': use})
+    else:
+        return redirect('/')   
+    
+def BRadmin_accounts_internship_payment_pending(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+
+        data=internship.objects.filter(complete_status='0')
+        use=internship_type.objects.all()
+    
+        return render(request, 'BRadmin_accounts_internship_payment_pending.html', {'Adm': Adm,'data': data,'use': use})
+    else:
+        return redirect('/')   
+
+def BRadmin_accounts_intrenship_viewbydate(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+
+    newdata = internship.objects.filter(verify_status=1)
+    return render(request, 'BRadmin_accounts_internship_viewbydate.html', {'Adm': Adm,'newdata':newdata})
+
+def BRadmin_accounts_internship_dateview(request):  
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+    reg_date = request.GET.get('date')  
+    #empid = internship.objects.get(id=id)  
+    empid = internship.objects.filter(reg_date=reg_date)  
+    return render(request, 'BRadmin_accounts_internship_dateview.html',{'Adm': Adm, 'empid':empid})  
+
+def BRadmin_accounts_internship_update(request, id):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+    var = internship.objects.get(id=id)
+    return render (request, 'BRadmin_accounts_internship_update.html', {'Adm': Adm,'var': var})
+
+
+def BRadmin_accounts_interndelete(request, id):
+    man = internship.objects.get(id=id)
+    man.delete()
+    return redirect('BRadmin_accounts_internship')
+
+def BRadmin_accounts_internshipupdatesave(request, id):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id) 
+  
+        
+        Adm = user_registration.objects.filter(id=Adm_id)
+        var = internship.objects.get(id=id)
+        var.fullname = request.POST['fullname']
+        var.collegename = request.POST['college']
+        var.reg_no = request.POST['regno']
+        var.course = request.POST['course']
+        var.stream = request.POST['stream']
+        var.platform = request.POST['platform']
+        #var.branch_id  =  request.POST['branch']
+        var.start_date = request.POST['startdate']
+        var.end_date = request.POST['enddate']
+        var.mobile = request.POST['mobile']
+        var.alternative_no = request.POST['altmob']
+        var.email = request.POST['email']
+        var.hrmanager = request.POST['hrmanager']
+        var.guide = request.POST['guide']
+        var.rating = request.POST['rating']
+        var.save()
+        return redirect('BRadmin_accounts_internship')
+
+def BRadmin_monthdays(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+        return render(request,'BRadmin_monthdays.html', {'Adm': Adm})
+    else:
+        return redirect('/')
+        
+def BRadmin_viewdays(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+        mem = acnt_monthdays.objects.all()
+        return render(request,'BRadmin_viewdays.html', {'Adm': Adm,'mem':mem})
+    else:
+        return redirect('/')
+        
+def BRadmin_salary_given(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        Adm = user_registration.objects.filter(id=Adm_id)
+        mem = user_registration.objects.filter(salary_status=1)
+        return render(request,'BRadmin_salary_given.html', {'Adm': Adm,'mem':mem})
+    else:
+        return redirect('/')
+
+
+def BRadmin_project_dept(request):
+     if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        project_details = project.objects.all()
+        depart = department.objects.all()
+        return render(request, 'BRadmin_project_dept.html', {'proj_det': project_details, 'department': depart, 'Adm': Adm})
+     else:
+        return redirect('/')
+
+
+def BRadmin_project_list(request,id):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        project_details = project.objects.filter(
+            ~Q(status='Rejected'), department_id=id)
+        return render(request, 'BRadmin_project_list.html', {'proj_det': project_details, 'Adm': Adm})
+    else:
+        return redirect('/')
+
+
+def BRadmin_project_table(request,id):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        pro = project.objects.filter(id=id)
+        return render(request, 'BRadmin_project_table.html', {'Adm': Adm, 'projects': pro})
+    else:
+        return redirect('/')
+
+def BRadmin_salary_pending(request):
+    if 'Adm_id' in request.session:
+        if request.session.has_key('Adm_id'):
+            Adm_id = request.session['Adm_id']
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=Adm_id)
+        mem = user_registration.objects.filter(salary_status=0)
+        return render(request,'BRadmin_salary_pending.html', {'Adm': Adm,'mem':mem})
+    else:
+        return redirect('/')
+
+
+def accounts_intrenship_viewbydate(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        
+    newdata = internship.objects.filter(verify_status=1)
+    return render(request, 'accounts_internship_viewbydate.html', {'z':z,'newdata':newdata})
+
+def accounts_internship_dateview(request):  
+    if 'usernameacnt2' in request.session:  
+        if request.session.has_key('usernameacnt2'):  
+            usernameacnt2 = request.session['usernameacnt2']  
+        z = user_registration.objects.filter(id=usernameacnt2)  
+
+    reg_date = request.GET.get('date')    
+    empid = internship.objects.filter(reg_date=reg_date)  
+    return render(request, 'accounts_internship_dateview.html',{'z':z, 'empid':empid})  
+
+def accounts_internship_update(request, id):
+    if 'usernameacnt2' in request.session:  
+        if request.session.has_key('usernameacnt2'):  
+            usernameacnt2 = request.session['usernameacnt2']  
+        z = user_registration.objects.filter(id=usernameacnt2) 
+    var = internship.objects.get(id=id)
+    return render (request, 'accounts_internship_update.html', {'z': z,'var': var})
+
+
+def accounts_interndelete(request, id):
+    man = internship.objects.get(id=id)
+    man.delete()
+    return redirect('accounts_internship')
+
+def accounts_internshipupdatesave(request, id):
+    if 'usernameacnt2' in request.session:  
+        if request.session.has_key('usernameacnt2'):  
+            usernameacnt2 = request.session['usernameacnt2']  
+  
+        else:
+            return redirect('/')
+        Adm = user_registration.objects.filter(id=usernameacnt2)
+        var = internship.objects.get(id=id)
+        var.fullname = request.POST['fullname']
+        var.collegename = request.POST['college']
+        var.reg_no = request.POST['regno']
+        var.course = request.POST['course']
+        var.stream = request.POST['stream']
+        var.platform = request.POST['platform']
+        #var.branch_id  =  request.POST['branch']
+        var.start_date = request.POST['startdate']
+        var.end_date = request.POST['enddate']
+        var.mobile = request.POST['mobile']
+        var.alternative_no = request.POST['altmob']
+        var.email = request.POST['email']
+        var.hrmanager = request.POST['hrmanager']
+        var.guide = request.POST['guide']
+        var.rating = request.POST['rating']
+        var.save()
+        return redirect('accounts_internship')
+ 
+def trainer_save(request,id):  
+    var = user_registration.objects.get(id=id)  
+    var.trainer_level = request.POST['tr_level']  
+    var.save()  
+    msg_success="Added succesfully"
+    return render(request, 'trainer.html', {'msg_success':msg_success})
+
+def accounts_intrenship_viewbydate(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)
+        
+    newdata = internship.objects.filter(verify_status=1)
+    return render(request, 'accounts_internship_viewbydate.html', {'z':z,'newdata':newdata})

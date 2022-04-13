@@ -1,9 +1,9 @@
-{% extends 'index_accounts.html' %} 
+{% extends 'BRadmin_index.html' %} 
 {%load static%} {%block content%}
 
 <div class="row" style="padding-top:20px;">
   <div class="col-sm-6 grid-margin">
-    <a href="{%url 'accounts_internship_payment_pending'%}" style="text-decoration: none">
+    <a href="{%url 'BRadmin_accounts_internship_payment_pending'%}" style="text-decoration: none">
     <div class="card" style="height: 180px">
         <div class="card-body">
           <div class="row" style="padding-top:20px;">
@@ -21,7 +21,7 @@
     </div>
   </div>
   <div class="col-sm-6 grid-margin">
-    <a href="{%url 'accounts_internship_viewall' %}" style="text-decoration: none">
+    <a href="{%url 'BRadmin_accounts_internship_viewall' %}" style="text-decoration: none">
     <div class="card" style="height: 180px">
       <div class="card-body">
           <div class="row" style="padding-top:20px;">
@@ -41,7 +41,7 @@
 </div>
 <div class="row" style="padding-top:20px;">
   <div class="col-sm-6 grid-margin">
-    <a href="{% url 'accounts_internship_viewbydate' %}" style="text-decoration: none">
+    <a href="{%url 'BRadmin_accounts_internship_viewbydate' %}" style="text-decoration: none">
     <div class="card" style="height: 180px">
         <div class="card-body">         
           <div class="row" style="padding-top:20px;">

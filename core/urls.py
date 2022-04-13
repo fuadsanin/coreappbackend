@@ -1183,6 +1183,38 @@ urlpatterns = [
     re_path(r'^accounts_intrenship_add/$',views.accounts_intrenship_add, name="accounts_intrenship_add"),
     re_path(r'^internshiptypeupdate/(?P<id>\d+)/$',views.internshiptypeupdate,name="internshiptypeupdate"),
     re_path(r'^internshiptypedelete/(?P<id>\d+)/$',views.internshiptypedelete,name="internshiptypedelete"),
+    re_path(r'^trainer_currentprogress/(?P<id>\d+)$',views.trainer_currentprogress, name='trainer_currentprogress'),
+    re_path(r'^BRadmin_new_registration/$', views.BRadmin_new_registration, name="BRadmin_new_registration"),
+    re_path(r'^BRadmin_internship_pending/$', views.BRadmin_internship_pending, name="BRadmin_internship_pending"),
+    re_path(r'^BRadmin_internship_acc_approved/$', views.BRadmin_internship_acc_approved, name="BRadmin_internship_acc_approved"),
+    re_path(r'^registrationstatus/(?P<id>\d+)/$', views.registrationstatus, name="registrationstatus"),
+    re_path(r'^BRadmin_accounts/$', views.BRadmin_accounts, name='BRadmin_accounts'),
+    re_path(r'^BRadmin_accounts_traineepayment_notverified/$', views.BRadmin_accounts_traineepayment_notverified, name='BRadmin_accounts_traineepayment_notverified'),
+    re_path(r'^BRadmin_accounts_traineepayment_pending/$', views.BRadmin_accounts_traineepayment_pending, name='BRadmin_accounts_traineepayment_pending'),
+    re_path(r'^BRadmin_accounts_newtrainees/$', views.BRadmin_accounts_newtrainees, name='BRadmin_accounts_newtrainees'),
+    re_path(r'^BRadmin_accounts_salaried_employees/$', views.BRadmin_accounts_salaried_employees, name='BRadmin_accounts_salaried_employees'),
+    re_path(r'^BRadmin_accounts_salary_employees/$', views.BRadmin_accounts_salary_employees, name='BRadmin_accounts_salary_employees'),
+    re_path(r'^BRadmin_accounts_internship/$', views.BRadmin_accounts_internship, name='BRadmin_accounts_internship'),
+    re_path(r'^BRadmin_accounts_internship_viewall/$', views.BRadmin_accounts_internship_viewall, name='BRadmin_accounts_internship_viewall'),
+    re_path(r'^BRadmin_accounts_internship_payment_pending/$', views.BRadmin_accounts_internship_payment_pending, name='BRadmin_accounts_internship_payment_pending'),
+    re_path(r'^BRadmin_accounts_internship_viewbydate/$', views.BRadmin_accounts_intrenship_viewbydate, name="BRadmin_accounts_internship_viewbydate"),
+    re_path(r'^BRadmin_accounts_internship_dateview$', views.BRadmin_accounts_internship_dateview, name="BRadmin_accounts_internship_dateview"),
+    re_path(r'^BRadmin_accounts_internship_update/(?P<id>\d+)/$', views.BRadmin_accounts_internship_update, name="BRadmin_accounts_internship_update"),
+    re_path(r'^BRadmin_accounts_interndelete/(?P<id>\d+)/$', views.BRadmin_accounts_interndelete, name="BRadmin_accounts_interndelete"),
+    re_path(r'^BRadmin_accounts_internshipupdatesave/(?P<id>\d+)/$', views.BRadmin_accounts_internshipupdatesave, name="BRadmin_accounts_internshipupdatesave"),
+    re_path(r'^BRadmin_monthdays/$',views.BRadmin_monthdays, name='BRadmin_monthdays'),
+    re_path(r'^BRadmin_viewdays/$',views.BRadmin_viewdays, name='BRadmin_viewdays'),
+    re_path(r'^BRadmin_salary_given/$',views.BRadmin_salary_given, name='BRadmin_salary_given'),
+    re_path(r'^BRadmin_salary_pending/$',views.BRadmin_salary_pending, name='BRadmin_salary_pending'),
+    re_path(r'^BRadmin_project_dept/$',views.BRadmin_project_dept,name='BRadmin_project_dept'), 
+    re_path(r'^BRadmin_project_list/(?P<id>\d+)/$',views.BRadmin_project_list, name='BRadmin_project_list'),
+    re_path(r'^BRadmin_project_table/(?P<id>\d+)/$', views.BRadmin_project_table,name='BRadmin_project_table'),
+   
+
+
+
+
+
 
 ]
 
