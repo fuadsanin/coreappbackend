@@ -1209,7 +1209,13 @@ urlpatterns = [
     re_path(r'^BRadmin_project_dept/$',views.BRadmin_project_dept,name='BRadmin_project_dept'), 
     re_path(r'^BRadmin_project_list/(?P<id>\d+)/$',views.BRadmin_project_list, name='BRadmin_project_list'),
     re_path(r'^BRadmin_project_table/(?P<id>\d+)/$', views.BRadmin_project_table,name='BRadmin_project_table'),
-   
+    
+    re_path(r'^accounts_internship_viewbydate/$', views.accounts_internship_viewbydate, name="accounts_internship_viewbydate"),
+    re_path(r'^accounts_internship_dateview$', views.accounts_internship_dateview, name="accounts_internship_dateview"),
+    re_path(r'^accounts_internship_update/(?P<id>\d+)/$', views.accounts_internship_update, name="accounts_internship_update"),
+    re_path(r'^accounts_interndelete/(?P<id>\d+)/$', views.accounts_interndelete, name="accounts_interndelete"),
+    re_path(r'^accounts_internshipupdatesave/(?P<id>\d+)/$', views.accounts_internshipupdatesave, name="accounts_internshipupdatesave"),
+
 
 
 

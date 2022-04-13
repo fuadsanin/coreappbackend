@@ -11673,13 +11673,13 @@ def BRadmin_salary_pending(request):
         return redirect('/')
 
 
-def accounts_intrenship_viewbydate(request):
+def accounts_internship_viewbydate(request):
     if 'usernameacnt2' in request.session:
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
         z = user_registration.objects.filter(id=usernameacnt2)
-        
-    newdata = internship.objects.filter(verify_status=1)
+    newdata = internship.objects.all().values('reg_date').distinct()
+    # newdata = internship.objects.filter(verify_status=1)
     return render(request, 'accounts_internship_viewbydate.html', {'z':z,'newdata':newdata})
 
 def accounts_internship_dateview(request):  
@@ -11740,11 +11740,3 @@ def trainer_save(request,id):
     msg_success="Added succesfully"
     return render(request, 'trainer.html', {'msg_success':msg_success})
 
-def accounts_intrenship_viewbydate(request):
-    if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt2'):
-            usernameacnt2 = request.session['usernameacnt2']
-        z = user_registration.objects.filter(id=usernameacnt2)
-        
-    newdata = internship.objects.filter(verify_status=1)
-    return render(request, 'accounts_internship_viewbydate.html', {'z':z,'newdata':newdata})
